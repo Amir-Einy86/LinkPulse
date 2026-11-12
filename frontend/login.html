@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ورود | لینک‌پالس</title>
+  <meta name="theme-color" content="#f5f2eb">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/Vazirmatn-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body class="site auth-page">
+  <a class="skip" href="#main">رفتن به محتوای اصلی</a>
+  <div class="auth">
+    <main id="main" class="auth-main">
+      <div class="auth-top">
+        <a class="brand" href="index.html"><img src="assets/logo.svg" alt="" width="32" height="32"><span>لینک‌پالس</span></a>
+        <a class="btn btn-ghost" href="index.html"><span class="icon">arrow_forward</span>صفحه‌ی اصلی</a>
+      </div>
+      <div class="auth-box">
+        <div class="stack gap-2">
+          <h1>خوش برگشتی.</h1>
+          <p class="muted">وارد حسابت شو و آمار لینک‌هات رو ببین.</p>
+        </div>
+        <div class="auth-banner" id="outBanner" role="status" hidden><span class="icon">logout</span><span>از حسابت خارج شدی. هر وقت خواستی دوباره وارد شو.</span></div>
+        <div class="auth-banner" id="expiredBanner" role="status" hidden><span class="icon">schedule</span><span>نشست قبلیت تموم شده بود؛ دوباره وارد شو.</span></div>
+        <form id="loginForm" class="auth-form" novalidate>
+          <div class="field">
+            <label class="label" for="email">ایمیل</label>
+            <div class="input-wrap"><span class="icon">mail</span><input id="email" class="input ltr" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+          </div>
+          <div class="field">
+            <label class="label" for="password">رمز عبور</label>
+            <div class="input-wrap has-end"><span class="icon">lock</span><input id="password" class="input ltr" type="password" autocomplete="current-password" placeholder="••••••••"><button type="button" class="btn-icon input-end" data-toggle-password="password" aria-label="نمایش رمز"><span class="icon">visibility</span></button></div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginBtn">ورود به پنل</button>
+        </form>
+        <p class="auth-foot">حساب نداری؟ <a class="link" href="register.html">ثبت‌نام کن</a></p>
+      </div>
+    </main>
+    <aside class="auth-aside" aria-hidden="false">
+      <h2>هر کلیک یه داستان داره. ببینش.</h2>
+      <ul class="auth-points">
+        <li><span class="icon">check</span><span>لینک‌های بلند رو تمیز و کوتاه می‌کنی</span></li>
+        <li><span class="icon">check</span><span>می‌بینی کی و از کجا کلیک شده</span></li>
+        <li><span class="icon">check</span><span>لینک‌های قدیمی رو آرشیو یا منقضی می‌کنی</span></li>
+      </ul>
+      <div class="auth-mini">
+        <div class="small dim">نمونه‌ای از لینک کوتاه</div>
+        <div class="ltr mono" style="margin-block:.3rem .6rem">linkpulse.app/my-portfolio</div>
+        <div class="row gap-2"><span class="delta delta-up"><span class="icon">north</span>۱۸٪</span><span class="small muted">نسبت به هفته‌ی قبل</span></div>
+      </div>
+    </aside>
+  </div>
+  <script src="js/utils.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/pages/auth.js"></script>
+</body>
+</html>

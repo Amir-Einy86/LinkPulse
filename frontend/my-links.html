@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لینک‌های من | لینک‌پالس</title>
+  <meta name="theme-color" content="#f5f2eb">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/Vazirmatn-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body data-shell="app" data-page="my-links" data-title="لینک‌های من">
+  <a class="skip" href="#main">رفتن به محتوای اصلی</a>
+
+  <main id="main" class="page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow"><span class="live-dot"></span>مدیریت لینک‌ها</p>
+        <h1>لینک‌های من</h1>
+        <p class="muted">همه‌ی لینک‌هات یه‌جاست. جستجو کن، مرتب کن، ویرایش کن یا حذفشون کن.</p>
+      </div>
+      <button type="button" class="btn btn-primary" id="createBtn"><span class="icon">add_link</span>ساخت لینک جدید</button>
+    </div>
+
+    <!-- خلاصه‌ی آمار -->
+    <section class="kpis kpis-4" id="strip" aria-label="خلاصه‌ی لینک‌ها"></section>
+
+    <!-- نوار جستجو و فیلتر -->
+    <section class="card toolbar-card" aria-label="جستجو و فیلتر">
+      <div class="toolbar">
+        <div class="input-wrap toolbar-search">
+          <span class="icon">search</span>
+          <input id="linkSearch" class="input" type="search" placeholder="جستجو بر اساس عنوان، اسلاگ یا آدرس…" aria-label="جستجوی لینک‌ها" autocomplete="off">
+        </div>
+        <div id="statusDd"></div>
+        <div id="sortDd"></div>
+        <button type="button" class="btn btn-soft" id="exportBtn"><span class="icon tone-tertiary">download</span>خروجی CSV</button>
+        <div class="bulk" id="bulkBar" hidden>
+          <span><b id="selCount">۰</b> مورد انتخاب شده</span>
+          <button type="button" class="btn btn-danger-soft btn-sm" id="bulkDelete"><span class="icon">delete</span>حذف</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- جدول -->
+    <section class="card table-card">
+      <div id="tableMount" aria-live="polite"></div>
+      <div id="pagerMount"></div>
+    </section>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/link-modal.js"></script>
+  <script src="js/pages/my-links.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>تنظیمات | لینک‌پالس</title>
+  <meta name="theme-color" content="#f5f2eb">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/Vazirmatn-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body data-shell="app" data-page="settings" data-title="تنظیمات">
+  <a class="skip" href="#main">رفتن به محتوای اصلی</a>
+
+  <main id="main" class="page">
+    <div class="page-head">
+      <div>
+        <h1>تنظیمات</h1>
+        <p class="muted">رفتار پنل رو اون‌طوری که دوست داری تنظیم کن.</p>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <nav class="card settings-nav" aria-label="بخش‌های تنظیمات">
+        <a href="#sec-prefs"><span class="icon">tune</span>ترجیح‌ها</a>
+        <a href="#sec-notify"><span class="icon">notifications</span>اعلان‌ها</a>
+        <a href="#sec-password"><span class="icon">lock</span>رمز عبور</a>
+        <a href="#sec-data"><span class="icon">database</span>داده‌ها و حساب</a>
+      </nav>
+
+      <div class="stack gap-6">
+        <!-- ترجیح‌ها -->
+        <section class="card" id="sec-prefs">
+          <div class="card-head"><div><h2 class="card-title"><span class="icon tone-primary">tune</span>ترجیح‌ها</h2><p class="card-sub">با هر تغییر، خودکار ذخیره می‌شه.</p></div></div>
+          <div class="stack">
+            <div class="setting-row">
+              <div><label class="bold" for="setExpiry">انقضای پیش‌فرض لینک‌های جدید</label><p class="hint">وقتی لینک می‌سازی، همین گزینه از قبل انتخاب شده می‌یاد.</p></div>
+              <select id="setExpiry" class="select select-sm">
+                <option value="none">بدون تاریخ انقضا</option>
+                <option value="1">یک روز</option>
+                <option value="7">یک هفته</option>
+                <option value="30">یک ماه</option>
+                <option value="90">سه ماه</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div><label class="bold" for="setPage">تعداد ردیف در هر صفحه‌ی جدول</label><p class="hint">توی صفحه‌ی «لینک‌های من» اعمال می‌شه.</p></div>
+              <select id="setPage" class="select select-sm">
+                <option value="6">۶ ردیف</option>
+                <option value="10">۱۰ ردیف</option>
+                <option value="20">۲۰ ردیف</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- اعلان‌ها -->
+        <section class="card" id="sec-notify">
+          <div class="card-head"><div><h2 class="card-title"><span class="icon tone-secondary">notifications</span>اعلان‌ها</h2><p class="card-sub">چه خبرهایی برات مهمه؟</p></div></div>
+          <div class="stack">
+            <div class="setting-row">
+              <div><label class="bold" for="nMilestone">رسیدن به عددهای رُند کلیک</label><p class="hint">مثلاً وقتی یه لینک از ۱۰۰۰ کلیک رد شد.</p></div>
+              <span class="switch"><input type="checkbox" id="nMilestone"><span class="track"></span></span>
+            </div>
+            <div class="setting-row">
+              <div><label class="bold" for="nExpiry">نزدیک شدن به تاریخ انقضا</label><p class="hint">چند روز قبل از منقضی شدن لینک‌ها بهت خبر می‌دیم.</p></div>
+              <span class="switch"><input type="checkbox" id="nExpiry"><span class="track"></span></span>
+            </div>
+            <div class="setting-row">
+              <div><label class="bold" for="nNews">تازه‌های لینک‌پالس</label><p class="hint">قابلیت‌های جدید و نکته‌های کاربردی.</p></div>
+              <span class="switch"><input type="checkbox" id="nNews"><span class="track"></span></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- رمز عبور -->
+        <section class="card" id="sec-password">
+          <div class="card-head"><div><h2 class="card-title"><span class="icon tone-warning">lock</span>تغییر رمز عبور</h2><p class="card-sub">بعد از تغییر رمز، توی بقیه‌ی دستگاه‌ها باید دوباره وارد بشی.</p></div></div>
+          <form id="passForm" class="stack" novalidate>
+            <div class="field">
+              <label class="label" for="pCurrent">رمز فعلی</label>
+              <div class="input-wrap has-end">
+                <input id="pCurrent" class="input ltr" type="password" autocomplete="current-password">
+                <button type="button" class="btn-icon input-end" data-toggle-password="pCurrent" aria-label="نمایش رمز"><span class="icon">visibility</span></button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label class="label" for="pNew">رمز جدید</label>
+                <div class="input-wrap has-end">
+                  <input id="pNew" class="input ltr" type="password" autocomplete="new-password">
+                  <button type="button" class="btn-icon input-end" data-toggle-password="pNew" aria-label="نمایش رمز"><span class="icon">visibility</span></button>
+                </div>
+                <div class="strength" aria-live="polite"><div class="strength-bar"><i id="strengthFill"></i></div><span class="small dim" id="strengthText">حداقل ۸ کاراکتر</span></div>
+              </div>
+              <div class="field">
+                <label class="label" for="pRepeat">تکرار رمز جدید</label>
+                <div class="input-wrap has-end">
+                  <input id="pRepeat" class="input ltr" type="password" autocomplete="new-password">
+                  <button type="button" class="btn-icon input-end" data-toggle-password="pRepeat" aria-label="نمایش رمز"><span class="icon">visibility</span></button>
+                </div>
+              </div>
+            </div>
+            <div><button type="submit" class="btn btn-primary" id="passBtn"><span class="icon">lock_reset</span>تغییر رمز</button></div>
+          </form>
+        </section>
+
+        <!-- داده‌ها و حساب -->
+        <section class="card danger-zone" id="sec-data">
+          <div class="card-head"><div><h2 class="card-title"><span class="icon tone-error">warning</span>داده‌ها و حساب</h2><p class="card-sub">کارهای این بخش برگشت ندارن.</p></div></div>
+          <div class="stack">
+            <div class="setting-row">
+              <div><b>حذف همه‌ی لینک‌ها</b><p class="hint">همه‌ی لینک‌ها و آمارشون پاک می‌شه، ولی حسابت می‌مونه.</p></div>
+              <button type="button" class="btn btn-danger-soft" id="deleteLinks"><span class="icon">delete_sweep</span>حذف لینک‌ها</button>
+            </div>
+            <div class="setting-row">
+              <div><b>حذف حساب</b><p class="hint">حساب و همه‌ی اطلاعاتش برای همیشه پاک می‌شه.</p></div>
+              <button type="button" class="btn btn-danger" id="deleteAccount"><span class="icon">person_remove</span>حذف حساب</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/link-modal.js"></script>
+  <script src="js/pages/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>داشبورد | لینک‌پالس</title>
+  <meta name="theme-color" content="#f5f2eb">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/Vazirmatn-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body data-shell="app" data-page="dashboard" data-title="داشبورد">
+  <a class="skip" href="#main">رفتن به محتوای اصلی</a>
+
+  <main id="main" class="page">
+    <!-- سلام و دکمه‌های بالای صفحه -->
+    <div class="page-head">
+      <div>
+        <h1 id="greeting">سلام</h1>
+        <p class="muted" id="subGreeting"></p>
+      </div>
+      <div class="row gap-2 wrap">
+        <select id="rangeSelect" class="select select-sm" aria-label="بازه‌ی زمانی">
+          <option value="7">۷ روز گذشته</option>
+          <option value="30">۳۰ روز گذشته</option>
+        </select>
+        <button type="button" class="btn-icon btn-soft" id="refreshBtn" aria-label="به‌روزرسانی آمار" title="به‌روزرسانی آمار"><span class="icon">sync</span></button>
+        <button type="button" class="btn btn-primary" id="createBtn"><span class="icon">add</span>ساخت لینک جدید</button>
+      </div>
+    </div>
+
+    <!-- سه کارت آمار -->
+    <section class="kpis kpis-3" aria-label="خلاصه‌ی آمار">
+      <article class="kpi">
+        <div class="kpi-head"><span class="kpi-label">کل لینک‌ها</span><span class="kpi-icon tone-primary"><span class="icon">link</span></span></div>
+        <div class="kpi-value" id="kpiLinks">—</div>
+        <div class="kpi-foot" id="kpiLinksNote"></div>
+      </article>
+      <article class="kpi">
+        <div class="kpi-head"><span class="kpi-label">کلیک‌ها در این بازه</span><span class="kpi-icon tone-secondary"><span class="icon">ads_click</span></span></div>
+        <div class="kpi-value" id="kpiClicks">—</div>
+        <div class="kpi-foot" id="kpiClicksNote"></div>
+      </article>
+      <article class="kpi">
+        <div class="kpi-head"><span class="kpi-label">لینک‌های فعال</span><span class="kpi-icon tone-tertiary"><span class="icon">radar</span></span></div>
+        <div class="kpi-value" id="kpiActive">—</div>
+        <div class="kpi-foot" id="kpiActiveNote"></div>
+      </article>
+    </section>
+
+    <!-- نمودار کلیک‌ها + پرکلیک‌ترین‌ها -->
+    <section class="grid-main">
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">کلیک‌ها در گذر زمان</h2>
+            <p class="card-sub">مجموع کلیک روی همه‌ی لینک‌های غیرآرشیو</p>
+          </div>
+          <span class="chip" id="peakBadge"></span>
+        </div>
+        <div id="clicksChart" aria-live="polite"></div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">پرکلیک‌ترین‌ها</h2>
+            <p class="card-sub">در همین بازه‌ی زمانی</p>
+          </div>
+          <a class="link-btn" href="my-links.html?sort=clicks">همه‌ی لینک‌ها</a>
+        </div>
+        <div id="topLinks" class="top-links"></div>
+      </article>
+    </section>
+
+    <!-- جدول آخرین لینک‌ها -->
+    <section class="card table-card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title">آخرین لینک‌ها</h2>
+          <p class="card-sub">جدیدترین لینک‌هایی که ساختی</p>
+        </div>
+        <div class="row gap-2 wrap">
+          <div class="input-wrap">
+            <span class="icon">search</span>
+            <input id="tableSearch" class="input input-sm" type="search" placeholder="جستجو بین لینک‌ها…" aria-label="جستجو بین آخرین لینک‌ها" autocomplete="off">
+          </div>
+          <select id="statusSelect" class="select select-sm" aria-label="فیلتر وضعیت">
+            <option value="all">همه‌ی وضعیت‌ها</option>
+            <option value="active">فعال</option>
+            <option value="expired">منقضی‌شده</option>
+            <option value="archived">آرشیو</option>
+          </select>
+        </div>
+      </div>
+      <div id="recentMount"></div>
+      <div class="table-foot"><a class="btn btn-ghost btn-sm" href="my-links.html">دیدن همه‌ی لینک‌ها<span class="icon">arrow_back</span></a></div>
+    </section>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/link-modal.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+</body>
+</html>

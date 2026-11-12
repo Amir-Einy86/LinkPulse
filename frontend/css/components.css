@@ -1,0 +1,222 @@
+@charset "UTF-8";
+/* =========================================================
+   components.css — اجزای تکراری: دکمه، فرم، کارت، جدول، پنجره...
+   ========================================================= */
+
+/* ---------- لوگو ---------- */
+.brand { display: inline-flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 17px; }
+.brand img { width: 1.75rem; height: 1.75rem; border-radius: 7px; }
+
+/* ---------- دکمه ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+  height: 2.5rem; padding: 0 1.05rem; border-radius: var(--radius); border: 1px solid transparent;
+  font-weight: 600; font-size: 13px; white-space: nowrap; user-select: none;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.12s var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled, .btn.is-loading { opacity: 0.55; pointer-events: none; }
+.btn .icon { font-size: 18px; }
+/* دکمه‌ی اصلی جوهریه؛ رنگ تأکید فقط برای جاهایی که واقعاً مهمن */
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: #000; }
+.btn-primary .icon { transition: transform 0.2s var(--ease); }
+.btn-primary:hover .icon { transform: translateX(-2px); }
+.btn-soft { background: var(--raised); color: var(--ink); border-color: var(--line-strong); }
+.btn-soft:hover { border-color: var(--ink-3); }
+.btn-ghost { color: var(--ink-2); }
+.btn-ghost:hover { background: var(--paper-sunk); color: var(--ink); }
+.btn-danger { background: var(--bad); color: #fff; }
+.btn-danger:hover { background: #962e1d; }
+.btn-danger-soft { background: var(--bad-soft); color: var(--bad); }
+.btn-danger-soft:hover { background: #efd0c8; }
+.btn-lg { height: 3.1rem; padding: 0 1.4rem; font-size: 14px; border-radius: var(--radius); }
+.btn-sm { height: 2rem; padding: 0 0.75rem; font-size: 12px; border-radius: var(--radius-sm); }
+.btn-block { width: 100%; }
+.btn-icon {
+  position: relative; width: 2.25rem; height: 2.25rem; padding: 0; flex-shrink: 0;
+  display: inline-grid; place-items: center; border-radius: var(--radius); color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+}
+.btn-icon:hover { background: var(--paper-sunk); color: var(--ink); }
+.btn-icon.accent:hover { color: var(--accent); }
+.btn-icon.secondary:hover { color: var(--ink); }
+.btn-icon.danger:hover { color: var(--bad); background: var(--bad-soft); }
+.btn-icon.is-on { color: var(--accent); }
+.link-btn { color: var(--accent); font-weight: 600; font-size: 12px; text-underline-offset: 3px; }
+.link-btn:hover { text-decoration: underline; }
+.spinner { width: 1em; height: 1em; border: 2px solid currentColor; border-inline-end-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+/* ---------- فرم ---------- */
+.field { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
+.label { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.label .opt { color: var(--ink-3); font-weight: 400; }
+.input, .select, .textarea {
+  width: 100%; background: var(--raised); border: 1px solid var(--line-strong); border-radius: var(--radius);
+  padding: 0.6rem 0.9rem; color: var(--ink); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input:hover, .select:hover, .textarea:hover { border-color: var(--ink-4); }
+.input, .select { height: 2.75rem; }
+.input-lg { height: 3.4rem; font-size: 15px; }
+.textarea { min-height: 6.5rem; resize: vertical; line-height: 1.9; }
+.input::placeholder, .textarea::placeholder { color: var(--ink-4); }
+.input:focus, .select:focus, .textarea:focus, .slug-input:focus-within {
+  border-color: var(--accent); box-shadow: var(--ring);
+}
+.field.has-error .input, .field.has-error .select, .field.has-error .textarea, .field.has-error .slug-input { border-color: var(--bad); }
+.field-error { display: flex; align-items: flex-start; gap: 0.35rem; color: var(--bad); font-size: 12px; line-height: 1.7; }
+.field-error .icon { font-size: 16px; margin-top: 2px; }
+.hint { color: var(--ink-3); font-size: 12px; line-height: 1.7; }
+.select {
+  appearance: none; -webkit-appearance: none; padding-left: 2.4rem; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%238a8378'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: left 0.7rem center;
+}
+.select option { background: var(--raised); color: var(--ink); }
+.input-wrap { position: relative; }
+.input-wrap > .icon { position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; font-size: 20px; }
+.input-wrap > .input { padding-inline-start: 2.6rem; }
+/* فیلد آدرس چپ‌به‌چپه؛ آیکون همچنان سمت راسته، پس padding سمت راست رو زیاد می‌کنیم */
+.input-wrap > .input.ltr { padding-inline-start: 0.9rem; padding-inline-end: 2.6rem; }
+.input-wrap > .input-end { position: absolute; inset-inline-end: 0.3rem; top: 50%; transform: translateY(-50%); }
+.input-wrap.has-end > .input { padding-inline-end: 2.9rem; }
+/* فیلد چپ‌به‌چپ (مثل رمز): دکمه‌ی نمایش رمز سمت چپه، پس فاصله رو سمت چپ می‌ذاریم */
+.input-wrap.has-end > .input.ltr { padding-left: 2.9rem; }
+.slug-input {
+  display: flex; align-items: center; gap: 0.25rem; height: 2.75rem; padding: 0 0.3rem 0 0.9rem;
+  background: var(--raised); border: 1px solid var(--line-strong); border-radius: var(--radius);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.slug-prefix { color: var(--ink-3); font-family: var(--font-mono); font-size: 13px; white-space: nowrap; }
+.slug-field { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: none; font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
+.check { display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; line-height: 1.7; }
+.check input { accent-color: var(--ink); width: 1.05rem; height: 1.05rem; margin-top: 0.3rem; flex-shrink: 0; }
+.switch { position: relative; width: 2.6rem; height: 1.5rem; flex-shrink: 0; }
+.switch input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; z-index: 1; }
+.switch .track { position: absolute; inset: 0; border-radius: 99px; background: var(--paper-deep); transition: background 0.2s; }
+.switch .track::after { content: ''; position: absolute; top: 0.2rem; inset-inline-start: 0.2rem; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: var(--raised); box-shadow: 0 1px 2px rgba(62, 48, 30, 0.25); transition: transform 0.2s var(--ease); }
+.switch input:checked + .track { background: var(--accent); }
+.switch input:checked + .track::after { transform: translateX(-1.1rem); }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- کارت: فقط یه خط نازک، بدون سایه ---------- */
+.card { background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 1.5rem; min-width: 0; }
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.card-title { display: flex; align-items: center; gap: 0.5rem; font-size: 15px; font-weight: 700; }
+.card-sub { color: var(--ink-3); font-size: 12px; margin-top: 0.1rem; }
+
+/* ---------- نشان‌ها: مربعی و کم‌صدا، نه قرص‌های براق ---------- */
+.badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.05rem 0.5rem; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.badge::before { content: ''; width: 0.4rem; height: 0.4rem; border-radius: 1px; background: currentColor; }
+.badge-active { background: var(--ok-soft); color: var(--ok); }
+.badge-expired { background: var(--bad-soft); color: var(--bad); }
+.badge-archived { background: var(--paper-sunk); color: var(--ink-3); }
+.chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.1rem 0.55rem; border-radius: 4px; background: var(--paper-sunk); color: var(--ink-2); font-size: 12px; font-weight: 600; }
+.delta { display: inline-flex; align-items: center; gap: 0.15rem; font-size: 12px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.delta .icon { font-size: 15px; }
+.delta-up { color: var(--ok); }
+.delta-down { color: var(--bad); }
+.delta-flat { color: var(--ink-3); font-weight: 500; }
+
+/* ---------- جدول ---------- */
+.table-wrap { overflow-x: auto; }
+.table { min-width: 780px; }
+.table th { color: var(--ink-3); font-size: 12px; font-weight: 600; padding: 0.6rem 1rem; text-align: start; white-space: nowrap; border-bottom: 1px solid var(--line-strong); }
+.table td { padding: 0.85rem 1rem; vertical-align: middle; border-bottom: 1px solid var(--line); }
+.table tbody tr { transition: background 0.15s; }
+.table tbody tr:hover { background: var(--paper); }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table .num { font-variant-numeric: tabular-nums; font-weight: 700; }
+.table .actions { white-space: nowrap; text-align: end; }
+.table .actions .btn-icon { width: 2rem; height: 2rem; }
+.table input[type='checkbox'] { accent-color: var(--ink); width: 1.05rem; height: 1.05rem; cursor: pointer; }
+
+/* ---------- پنجره (Modal) ---------- */
+.no-scroll { overflow: hidden; }
+.modal-backdrop { position: fixed; inset: 0; z-index: var(--z-modal); display: grid; place-items: center; padding: 1rem; background: rgba(35, 29, 22, 0.42); backdrop-filter: blur(3px); animation: fade 0.18s; }
+.modal-backdrop.out { opacity: 0; transition: opacity 0.15s; }
+.modal { width: 100%; max-width: 32rem; max-height: calc(100dvh - 2rem); overflow-y: auto; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: var(--shadow-2); animation: pop 0.22s var(--ease); }
+.modal-sm { max-width: 26rem; }
+.modal-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+.modal-icon { width: 2.25rem; height: 2.25rem; border-radius: var(--radius); background: var(--paper-sunk); color: var(--ink); display: grid; place-items: center; flex-shrink: 0; }
+.modal-title { flex: 1; font-size: 17px; font-weight: 700; }
+.modal-foot { margin-top: 1.5rem; }
+.modal-foot-inner { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.modal-text { line-height: 1.9; }
+.success-view { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.9rem; padding: 0.5rem 0; }
+.state-icon { width: 3.5rem; height: 3.5rem; border-radius: var(--radius-lg); display: grid; place-items: center; background: var(--paper-sunk); color: var(--ink-2); }
+.state-icon .icon { font-size: 1.75rem; }
+.state-icon.ok { background: var(--ok-soft); color: var(--ok); }
+.short-result { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius); background: var(--paper); border: 1px dashed var(--line-strong); color: var(--accent-ink); font-weight: 600; }
+
+/* ---------- پیام کوتاه (Toast): جوهری روی کاغذ ---------- */
+.toasts { position: fixed; z-index: var(--z-toast); bottom: 1.25rem; inset-inline: 0; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; padding: 0 1rem; }
+.toast { pointer-events: auto; display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 1rem; border-radius: var(--radius); background: var(--ink); color: var(--paper); box-shadow: var(--shadow-2); font-size: 13px; font-weight: 500; max-width: min(92vw, 28rem); animation: pop 0.25s var(--ease); }
+.toast .icon { font-size: 19px; }
+.toast-success .icon { color: #8fd1a8; }
+.toast-error .icon { color: #f2a08f; }
+.toast-info .icon { color: var(--ink-4); }
+.toast.out { opacity: 0; transform: translateY(8px); transition: 0.3s; }
+
+/* ---------- منوی کشویی ---------- */
+.dd { position: relative; display: inline-block; }
+.dd-btn { display: inline-flex; align-items: center; gap: 0.45rem; height: 2.5rem; padding: 0 0.8rem; border-radius: var(--radius); background: var(--raised); border: 1px solid var(--line-strong); color: var(--ink); font-weight: 600; font-size: 13px; transition: border-color 0.15s; }
+.dd-btn:hover { border-color: var(--ink-3); }
+.dd-icon { color: var(--ink-3); font-size: 18px; }
+.dd-caret { color: var(--ink-3); font-size: 18px; }
+.dd-menu { position: absolute; top: calc(100% + 0.35rem); inset-inline-start: 0; min-width: 11rem; z-index: var(--z-sticky); background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.3rem; box-shadow: var(--shadow-2); animation: pop 0.15s var(--ease); }
+.dd-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%; padding: 0.45rem 0.7rem; border-radius: var(--radius-sm); text-align: start; font-size: 13px; font-weight: 500; }
+.dd-item:hover { background: var(--paper-sunk); }
+.dd-item[aria-selected='true'] { color: var(--accent); font-weight: 600; }
+.dd-item .icon { font-size: 18px; }
+.popover { position: absolute; top: calc(100% + 0.5rem); inset-inline-end: 0; z-index: 60; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); animation: pop 0.15s var(--ease); }
+
+/* ---------- حالت‌های خالی، خطا، بارگذاری ---------- */
+.state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem; padding: 3.5rem 1.5rem; }
+.state h3 { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.4; }
+.state p { max-width: 26rem; color: var(--ink-2); }
+.state.is-error .state-icon { background: var(--bad-soft); color: var(--bad); }
+.skeleton { background: linear-gradient(90deg, var(--paper-sunk) 25%, var(--paper) 50%, var(--paper-sunk) 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; border-radius: var(--radius-sm); min-height: 1rem; }
+.skeleton-list { display: flex; flex-direction: column; }
+.skeleton-row { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--line); }
+
+/* ---------- صفحه‌بندی ---------- */
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; padding: 0.75rem 1rem; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-2); }
+.pager-info b { color: var(--ink); }
+.pager-btns { display: flex; align-items: center; gap: 0.2rem; }
+.pager-btn { min-width: 2rem; height: 2rem; padding: 0 0.4rem; border-radius: var(--radius-sm); display: grid; place-items: center; color: var(--ink-2); font-weight: 600; font-size: 12px; transition: background 0.15s; }
+.pager-btn:hover { background: var(--paper-sunk); color: var(--ink); }
+.pager-btn.is-active { background: var(--ink); color: var(--paper); }
+.pager-btn:disabled { opacity: 0.35; pointer-events: none; }
+.pager-gap { color: var(--ink-3); padding: 0 0.2rem; }
+
+/* ---------- دکمه‌ی انتخاب بازه (Segmented) ---------- */
+.seg { display: inline-flex; padding: 0.2rem; gap: 0.1rem; border-radius: var(--radius); background: var(--paper-sunk); }
+.seg button { padding: 0.25rem 0.8rem; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--ink-3); transition: background 0.15s, color 0.15s; }
+.seg button:hover { color: var(--ink); }
+.seg button.is-active { background: var(--raised); color: var(--ink); box-shadow: var(--shadow-1); }
+
+/* ---------- نمودارها ---------- */
+.chart { position: relative; }
+.chart svg { width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+.chart-tip { position: absolute; transform: translate(-50%, -130%); pointer-events: none; z-index: 5; background: var(--ink); color: var(--paper); padding: 0.35rem 0.7rem; border-radius: var(--radius-sm); white-space: nowrap; display: flex; flex-direction: column; align-items: center; line-height: 1.5; }
+.chart-tip small { color: var(--ink-4); font-size: 11px; }
+.chart-tip strong { font-size: 13px; }
+.chart-axis { display: flex; justify-content: space-between; color: var(--ink-3); font-size: 11px; padding-top: 0.6rem; }
+.chart-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-3); font-size: 13px; background: rgba(251, 249, 244, 0.7); border-radius: var(--radius); }
+.donut { position: relative; width: 11rem; height: 11rem; margin: 0 auto; }
+.donut svg { width: 100%; height: 100%; }
+.donut circle { transition: stroke-width 0.15s; }
+.donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.donut-center strong { font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1.1; }
+.donut-center span { font-size: 11px; color: var(--ink-3); }
+.spark { width: 5rem; height: 1.4rem; }
+
+/* ---------- آواتار: مربع گرد، تک‌رنگ ---------- */
+.avatar { width: 2.25rem; height: 2.25rem; border-radius: 9px; display: inline-grid; place-items: center; flex-shrink: 0; background: var(--accent-soft); color: var(--accent-ink); font-weight: 700; font-size: 15px; }
+.avatar-lg { width: 5.5rem; height: 5.5rem; border-radius: 20px; font-family: var(--font-display); font-size: 2.6rem; font-weight: 600; }
+
+/* ---------- دکمه‌ی پرش به محتوا (دسترس‌پذیری) ---------- */
+.skip { position: absolute; top: -4rem; inset-inline-start: 1rem; z-index: 300; padding: 0.5rem 1rem; border-radius: var(--radius); background: var(--ink); color: var(--paper); font-weight: 700; transition: top 0.2s; }
+.skip:focus { top: 1rem; }

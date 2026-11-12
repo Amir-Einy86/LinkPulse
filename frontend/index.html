@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لینک‌پالس | کوتاه‌کننده‌ی لینک با آمار کلیک</title>
+  <meta name="description" content="لینک‌های بلندت رو کوتاه کن و ببین کی، از کجا و با چه دستگاهی روشون کلیک می‌کنه.">
+  <meta property="og:title" content="لینک‌پالس | کوتاه‌کننده‌ی لینک با آمار کلیک">
+  <meta property="og:description" content="لینک‌های بلندت رو کوتاه کن و ببین کی، از کجا و با چه دستگاهی روشون کلیک می‌کنه.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#f5f2eb">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/Vazirmatn-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body class="site">
+  <a class="skip" href="#main">رفتن به محتوای اصلی</a>
+
+  <!-- ============ هدر ============ -->
+  <header class="site-header" id="siteHeader">
+    <div class="container site-header-in">
+      <a class="brand" href="index.html" aria-label="لینک‌پالس، صفحه‌ی اصلی"><img src="assets/logo.svg" alt="" width="28" height="28"><span>لینک‌پالس</span></a>
+      <nav class="site-nav" id="siteNav" aria-label="منوی اصلی">
+        <a href="#features">امکانات</a>
+        <a href="#how">روند کار</a>
+        <a href="#faq">سؤال‌ها</a>
+        <div class="site-nav-mobile">
+          <a class="btn btn-soft btn-block" href="login.html">ورود</a>
+          <a class="btn btn-primary btn-block" href="register.html">ساخت حساب</a>
+        </div>
+      </nav>
+      <div class="site-actions">
+        <a class="nav-text" href="login.html">ورود</a>
+        <a class="btn btn-primary" href="register.html">ساخت حساب</a>
+      </div>
+      <button type="button" class="btn-icon nav-toggle" id="navToggle" aria-label="باز کردن منو" aria-expanded="false" aria-controls="siteNav"><span class="icon">menu</span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ بخش اول ============ -->
+    <section class="hero container">
+      <div class="hero-copy">
+        <p class="kicker reveal">کوتاه‌کننده‌ی لینک، با آمار کلیک</p>
+        <h1 class="hero-title reveal">لینک بلندت رو کوتاه کن.<br>بعد ببین <em>کی</em> بازش می‌کنه.</h1>
+        <p class="hero-sub reveal">یه آدرس کوتاه و خوانا بساز، بذارش توی بیو، پیام یا کمپینت، و ببین چند نفر، از کجا و با چه دستگاهی کلیکش کردن.</p>
+
+        <div class="shorten-card reveal">
+          <form id="shortenForm" novalidate>
+            <div class="shorten-row">
+              <div class="field grow">
+                <label class="sr-only" for="urlInput">لینک بلند</label>
+                <div class="input-wrap">
+                  <span class="icon">link</span>
+                  <input id="urlInput" class="input input-lg ltr" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://example.com/a/very/long/link?utm_source=newsletter">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg" id="shortenBtn"><span>کوتاهش کن</span><span class="icon">arrow_back</span></button>
+            </div>
+          </form>
+
+          <div class="result" id="resultBox" hidden>
+            <div class="result-main">
+              <span class="result-ic"><span class="icon">check</span></span>
+              <div class="col">
+                <span class="small dim">لینک کوتاهت آماده‌ست</span>
+                <span class="ltr mono result-link" id="shortResult"></span>
+              </div>
+            </div>
+            <div class="row gap-2 wrap">
+              <button type="button" class="btn btn-soft" id="copyBtn"><span class="icon" id="copyIcon">content_copy</span><span id="copyLabel">کپی</span></button>
+              <a class="btn btn-primary" href="register.html">ثبت‌نام و دیدن آمار<span class="icon">arrow_back</span></a>
+            </div>
+          </div>
+        </div>
+
+        <p class="trust reveal">ثبت‌نام رایگان · اسلاگ دلخواه · آمار جدا برای هر لینک</p>
+      </div>
+
+      <!-- قبل و بعد: همون کاری که سایت انجام می‌ده، بدون توضیح اضافه -->
+      <figure class="specimen reveal" aria-label="مقایسه‌ی لینک خام و لینک کوتاه">
+        <div class="specimen-row is-before">
+          <span class="specimen-tag">قبل</span>
+          <span class="ltr mono specimen-url">https://myshop.com/catalog/items/checkout?sku=991823&amp;campaign=spring_promo_v2&amp;aff_id=883192038</span>
+        </div>
+        <div class="specimen-arrow" aria-hidden="true"><span class="icon">south</span></div>
+        <div class="specimen-row is-after">
+          <span class="specimen-tag">بعد</span>
+          <span class="ltr mono specimen-short">linkpulse.app/<b>spring-drop</b></span>
+          <span class="specimen-stat"><b>۳۸۴</b> کلیک این هفته</span>
+        </div>
+      </figure>
+    </section>
+
+    <!-- ============ نمونه‌ی پنل ============ -->
+    <section class="container section-tight">
+      <figure class="mock reveal">
+        <div class="mock-stats">
+          <div class="mock-stat"><span class="small muted">کل کلیک‌ها</span><b>۴٬۲۱۷</b><span class="delta delta-up"><span class="icon">north</span>۱۸٪</span></div>
+          <div class="mock-stat"><span class="small muted">بازدیدکننده‌ی یکتا</span><b>۱٬۸۳۹</b><span class="delta delta-up"><span class="icon">north</span>۹٪</span></div>
+          <div class="mock-stat"><span class="small muted">لینک‌های فعال</span><b>۱۸</b><span class="delta delta-flat">از ۲۴ لینک</span></div>
+        </div>
+        <div class="mock-chart">
+          <div class="card-head"><div><h2 class="card-title">کلیک‌ها در دو هفته‌ی گذشته</h2><p class="card-sub">نمودار رو لمس کن یا موس رو روش ببر</p></div><span class="chip">داده‌ی نمونه</span></div>
+          <div id="demoChart"></div>
+        </div>
+      </figure>
+    </section>
+
+    <!-- ============ امکانات ============ -->
+    <section class="container section split" id="features">
+      <header class="split-head reveal">
+        <p class="kicker">امکانات</p>
+        <h2>هر چی برای مدیریت لینک‌هات لازمه، و نه بیشتر</h2>
+        <p class="muted">ساده شروع می‌شه، ولی وقتی تعداد لینک‌هات زیاد شد هم شلوغ نمی‌شه.</p>
+      </header>
+      <ol class="feature-list">
+        <li class="feature reveal">
+          <span class="feature-n">۰۱</span>
+          <div>
+            <h3>ساخت توی چند ثانیه</h3>
+            <p class="muted">آدرس بلند رو بذار. اگه خواستی بخش آخرش رو خودت انتخاب کن، وگرنه خودمون یکی می‌سازیم.</p>
+          </div>
+        </li>
+        <li class="feature reveal">
+          <span class="feature-n">۰۲</span>
+          <div>
+            <h3>آمار کلیک، بدون شلوغی</h3>
+            <p class="muted">هر لینک چند بار باز شده، بازدیدکننده‌ها از کجا اومدن، با موبایل یا کامپیوتر، و از کدوم کشور.</p>
+          </div>
+        </li>
+        <li class="feature reveal">
+          <span class="feature-n">۰۳</span>
+          <div>
+            <h3>کنترل دست خودته</h3>
+            <p class="muted">برای لینک‌ها تاریخ انقضا بذار، موقتاً آرشیوشون کن، ویرایششون کن یا کلاً پاکشون کن.</p>
+          </div>
+        </li>
+        <li class="feature reveal">
+          <span class="feature-n">۰۴</span>
+          <div>
+            <h3>همه‌ی لینک‌ها یه‌جا</h3>
+            <p class="muted">جستجو، فیلتر وضعیت، مرتب‌سازی، انتخاب گروهی و خروجی CSV.</p>
+            <ul class="tags"><li>جستجو</li><li>فیلتر</li><li>مرتب‌سازی</li><li>خروجی CSV</li></ul>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============ روند کار ============ -->
+    <section class="container section" id="how">
+      <header class="section-head reveal">
+        <p class="kicker">روند کار</p>
+        <h2>سه قدم تا اولین آمار</h2>
+      </header>
+      <ol class="steps">
+        <li class="step reveal"><span class="step-n">۱</span><h3>لینکت رو بذار</h3><p class="muted">آدرس صفحه‌ای که می‌خوای به اشتراک بذاری رو وارد کن.</p></li>
+        <li class="step reveal"><span class="step-n">۲</span><h3>لینک کوتاه بگیر</h3><p class="muted">اسلاگ دلخواه بذار یا بذار خودمون بسازیم، بعد کپیش کن.</p></li>
+        <li class="step reveal"><span class="step-n">۳</span><h3>آمار رو دنبال کن</h3><p class="muted">با هر کلیک، نمودارها و جدول‌های اون لینک کامل‌تر می‌شن.</p></li>
+      </ol>
+    </section>
+
+    <!-- ============ سؤال‌های رایج ============ -->
+    <section class="container section split" id="faq">
+      <header class="split-head reveal">
+        <p class="kicker">سؤال‌های رایج</p>
+        <h2>قبل از ثبت‌نام</h2>
+        <p class="muted">جوابت این‌جا نبود؟ بعد از ورود، از بخش تنظیمات بهمون پیام بده.</p>
+      </header>
+      <dl class="faq reveal">
+        <div><dt>لینک کوتاه دقیقاً چطوری کار می‌کنه؟</dt><dd>وقتی کسی لینک کوتاه رو باز کنه، لینک‌پالس یه کلیک براش ثبت می‌کنه و بلافاصله به آدرس اصلی می‌فرستدش.</dd></div>
+        <div><dt>می‌تونم اسلاگ دلخواه بذارم؟</dt><dd>آره. موقع ساخت لینک، بخش آخر آدرس رو خودت انتخاب می‌کنی؛ مثلاً <span class="ltr mono">linkpulse.app/my-portfolio</span>. اگه قبلاً گرفته شده باشه، بهت می‌گیم.</dd></div>
+        <div><dt>از هر لینک چه آماری می‌بینم؟</dt><dd>تعداد کلیک‌ها در گذر زمان، منبع بازدید، نوع دستگاه و مرورگر، و کشورها.</dd></div>
+        <div><dt>می‌شه یه لینک رو موقتی کرد؟</dt><dd>آره. برای هر لینک تاریخ انقضا بذار؛ بعد از اون تاریخ دیگه کسی به مقصد نمی‌رسه. آرشیو کردن هم هست.</dd></div>
+        <div><dt>چه آدرس‌هایی رو می‌شه کوتاه کرد؟</dt><dd>فقط <span class="ltr mono">http</span> و <span class="ltr mono">https</span>. بقیه‌ی پروتکل‌ها به دلایل امنیتی قبول نمی‌شن.</dd></div>
+        <div><dt>اطلاعاتم امنه؟</dt><dd>رمزت هیچ‌وقت خام ذخیره نمی‌شه و آدرس IP بازدیدکننده‌ها هم نگه داشته نمی‌شه.</dd></div>
+      </dl>
+    </section>
+
+    <!-- ============ دعوت نهایی ============ -->
+    <section class="container section">
+      <div class="cta reveal">
+        <h2>اولین لینکت رو همین الان بساز.</h2>
+        <div class="row gap-3 wrap">
+          <a class="btn btn-primary btn-lg" href="register.html">ساخت حساب رایگان<span class="icon">arrow_back</span></a>
+          <a class="nav-text" href="login.html">قبلاً ثبت‌نام کردم</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ فوتر ============ -->
+  <footer class="site-footer">
+    <div class="container footer-in">
+      <a class="brand" href="index.html"><img src="assets/logo.svg" alt="" width="28" height="28"><span>لینک‌پالس</span></a>
+      <nav class="footer-links" aria-label="پیوندهای پایین صفحه">
+        <a href="#features">امکانات</a>
+        <a href="#how">روند کار</a>
+        <a href="#faq">سؤال‌ها</a>
+        <a href="login.html">ورود</a>
+      </nav>
+      <span class="dim small footer-note">© ۱۴۰۵ لینک‌پالس · پروژه‌ی پورتفولیو</span>
+    </div>
+  </footer>
+
+  <script src="js/utils.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/pages/landing.js"></script>
+</body>
+</html>
