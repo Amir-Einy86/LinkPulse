@@ -1,0 +1,305 @@
+@charset "UTF-8";
+/* =========================================================
+   animations.css — همه‌ی انیمیشن‌های سایت (مفهوم «جوهر و پالس»)
+   اگه این فایل رو از HTML حذف کنی، سایت بدون انیمیشن کار می‌کنه.
+   ========================================================= */
+
+/* ---------- ۱) توکن‌های حرکت: با عوض کردن همین‌ها سرعت کل سایت عوض می‌شه ---------- */
+:root {
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --stagger: 60ms;
+  --reveal-distance: 14px;
+}
+
+/* کاربری که توی سیستم‌عاملش «حرکت کمتر» رو روشن کرده (یا انیمیشن‌های ویندوز خاموشه):
+   هیچ چیزی جابه‌جا نمی‌شه، ولی بخش‌ها موقع اسکرول نرم «محو» ظاهر می‌شن.
+   (محو شدن حرکت نیست و سرگیجه نمی‌آره.) */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 450ms;
+    --stagger: 40ms;
+    --reveal-distance: 0px;
+  }
+  /* base.css همه‌ی transitionها رو صفر می‌کنه؛ اینجا فقط محو شدن رو برمی‌گردونیم */
+  html.js .reveal, html.js [data-reveal] {
+    transition-property: opacity !important;
+    transition-duration: var(--dur-slow) !important;
+    transition-timing-function: ease-out !important;
+  }
+  html.js .reveal:not(.is-in), html.js [data-reveal]:not(.is-in) { transform: none !important; }
+  /* site.css توی این حالت .reveal رو همیشه نمایش می‌ده؛ اینجا قبل از دیده شدن مخفیش می‌کنیم تا محو بشه */
+  html.js .reveal:not(.is-in):not(.line-host):not(.faq):not(.cta) { opacity: 0; }
+  /* خط‌ها و تیترها بدون حرکت، از اول سر جاشون */
+  html.js .line-host .line-inner,
+  html.js .kicker::before, html.js .eyebrow::before,
+  html.js .feature::after, html.js .step::before, html.js .cta::before {
+    transform: none !important; transition: none !important; animation: none !important;
+  }
+}
+
+/* ---------- ۲) ایمنی: اگه جاوااسکریپت اجرا نشه، هیچ چیزی مخفی نمی‌مونه ---------- */
+html:not(.js) .reveal,
+html:not(.js) [data-reveal] { opacity: 1 !important; transform: none !important; }
+
+/* =========================================================
+   ۳) سیستم ظاهر شدن
+   هر عنصری که data-reveal داشته باشه، تا وقتی وارد صفحه نشده مخفیه.
+   animations.js وقتی دیدش، کلاس is-in رو اضافه می‌کنه.
+   --i شماره‌ی عنصر توی گروه پله‌ایه (data-stagger) و تأخیرش رو تعیین می‌کنه.
+   ========================================================= */
+html.js [data-reveal] {
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * var(--stagger));
+}
+html.js [data-reveal]:not(.is-in) { opacity: 0; }
+html.js [data-reveal='']:not(.is-in),
+html.js [data-reveal='up']:not(.is-in) { transform: translateY(var(--reveal-distance)); }
+html.js [data-reveal='fade']:not(.is-in) { transform: none; }
+html.js [data-reveal='scale']:not(.is-in) { transform: scale(0.97); }
+/* «lines»: خود عنصر مخفی نمی‌شه، فقط خط‌های داخلش (بخش ۴) */
+html.js [data-reveal='lines']:not(.is-in) { opacity: 1; transform: none; }
+
+/* کلاس قدیمی .reveal (لندینگ) هم از همین توکن‌ها و تأخیر پله‌ای استفاده می‌کنه */
+html.js .reveal {
+  transition-duration: var(--dur-slow);
+  transition-timing-function: var(--ease-out);
+  transition-delay: calc(var(--i, 0) * var(--stagger));
+}
+html.js .reveal:not(.is-in) { transform: translateY(var(--reveal-distance)); }
+
+/* =========================================================
+   ۴) پس‌زمینه‌ی زنده (canvas ساخته‌شده توسط background.js)
+   ========================================================= */
+.lp-bg-host { position: relative; isolation: isolate; }
+.lp-bg {
+  position: absolute; inset: 0; z-index: -1;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  /* لبه‌های بالا و پایین محو، تا مرز کانواس دیده نشه */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);
+  opacity: 0;
+  animation: lp-fade var(--dur-slow) var(--ease-out) 200ms forwards;
+}
+/* هیرو داخل .container هست؛ کانواس تا لبه‌های صفحه پهن می‌شه */
+.hero > .lp-bg { left: 50%; right: auto; width: 100vw; transform: translateX(-50%); }
+
+/* =========================================================
+   ۵) ورود صفحه
+   ========================================================= */
+/* هدر سایت */
+html.js .site-header { animation: lp-fade var(--dur-base) var(--ease-out) both; }
+
+/* هیرو: آیتم‌ها با فاصله‌ی بیشتر پشت سر هم میان */
+.hero-copy { --stagger: 110ms; }
+
+/* خط کوچیک کنار برچسب‌ها از راست کشیده می‌شه */
+html.js .kicker::before {
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-slow) var(--ease-in-out) 120ms;
+}
+html.js .kicker.is-in::before,
+html.js .is-in .kicker::before { transform: none; }
+/* برچسب پنل (مثلاً «مدیریت لینک‌ها») موقع لود */
+html.js .eyebrow::before { transform-origin: right; animation: lp-draw var(--dur-slow) var(--ease-in-out) 150ms both; }
+
+/* تیترهای چندخطی: هر خط از پشت یه لبه‌ی نامرئی بالا میاد.
+   animations.js هر خط رو داخل .line-mask > .line-inner می‌ذاره. */
+.line-mask { display: block; overflow: hidden; padding-block: 0.12em; margin-block: -0.12em; }
+.line-inner { display: block; }
+html.js .line-host .line-inner {
+  transform: translateY(110%);
+  transition: transform var(--dur-slow) var(--ease-out);
+  transition-delay: calc(var(--line, 0) * 90ms + 60ms);
+}
+html.js .line-host.is-in .line-inner,
+html.js .is-in .line-host .line-inner { transform: none; }
+/* میزبان خط‌ها اگه خودش .reveal باشه، خودش محو نمی‌شه؛ فقط خط‌هاش حرکت می‌کنن */
+html.js .line-host.reveal:not(.is-in),
+html.js .line-host[data-reveal]:not(.is-in) { opacity: 1; transform: none; }
+
+/* کارت «قبل و بعد»: مثل برگه‌ای که روی میز گذاشته می‌شه */
+html.js .specimen.reveal {
+  transition:
+    opacity var(--dur-slow) var(--ease-out) 420ms,
+    transform 900ms cubic-bezier(0.3, 1.25, 0.5, 1) 420ms;
+}
+html.js .specimen.reveal:not(.is-in) { transform: translateY(-22px) rotate(0deg) scale(1.02); }
+/* داخل کارت: آدرس طولانی، فلش، و بعد لینک کوتاه مثل مُهر */
+html.js .specimen .specimen-row,
+html.js .specimen .specimen-arrow { transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+html.js .specimen:not(.is-in) .is-before { opacity: 0; }
+html.js .specimen:not(.is-in) .specimen-arrow { opacity: 0; transform: translateY(-8px); }
+html.js .specimen:not(.is-in) .is-after { opacity: 0; transform: scale(0.94); }
+html.js .specimen.is-in .is-before { transition-delay: 700ms; }
+html.js .specimen.is-in .specimen-arrow { transition-delay: 900ms; }
+html.js .specimen.is-in .is-after { transition: opacity var(--dur-base) var(--ease-out) 1050ms, transform var(--dur-base) var(--ease-spring) 1050ms; }
+
+/* کارت نمونه‌ی صفحه‌ی ورود هم همین‌طور گذاشته می‌شه */
+html.js .auth-mini[data-reveal] { transition: opacity var(--dur-slow) var(--ease-out), transform 900ms cubic-bezier(0.3, 1.25, 0.5, 1); transition-delay: calc(var(--i, 0) * var(--stagger)); }
+html.js .auth-mini[data-reveal]:not(.is-in) { transform: translateY(-18px) rotate(0deg); }
+
+/* نمونه‌ی پنل در لندینگ: کمی بزرگ‌شونده بالا میاد */
+html.js .mock.reveal:not(.is-in) { transform: translateY(28px) scale(0.985); }
+
+/* نمودارها: کشیدن خط با JS انجام می‌شه؛ نوارها از راست پر می‌شن */
+.bar-fill { transform-origin: right; }
+.donut svg { transform-origin: center; }
+
+/* =========================================================
+   ۶) انیمیشن‌های اسکرول، هر نوع بخش مخصوص خودش
+   ========================================================= */
+/* فهرست امکانات: خط زیر هر آیتم از راست کشیده می‌شه */
+.feature-list { --stagger: 90ms; }
+html.js .feature { position: relative; border-bottom-color: transparent; }
+html.js .feature::after {
+  content: ''; position: absolute; inset-inline: 0; bottom: -1px; height: 1px; background: var(--line);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform var(--dur-slow) var(--ease-in-out);
+  transition-delay: calc(var(--i, 0) * var(--stagger));
+}
+html.js .feature.is-in::after { transform: none; }
+
+/* سه قدم: خط بالای قدم‌ها پشت سر هم کشیده می‌شه، مثل نوار پیشرفت */
+.steps { --stagger: 240ms; }
+html.js .step { position: relative; border-top-color: transparent; }
+html.js .step::before {
+  content: ''; position: absolute; inset-inline: 0; top: -2px; height: 2px; background: var(--line-strong);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform var(--dur-slow) var(--ease-in-out);
+  transition-delay: calc(var(--i, 0) * var(--stagger));
+}
+html.js .step:first-child::before { background: var(--ink); }
+html.js .step.is-in::before { transform: none; }
+html.js .step.reveal:not(.is-in) { transform: none; }
+
+/* سؤال‌ها: خود کادر فوراً دیده می‌شه، جفت‌ها پله‌ای میان */
+html.js .faq.reveal:not(.is-in) { opacity: 1; transform: none; }
+
+/* دعوت نهایی: خط بالاش کشیده می‌شه */
+html.js .cta { position: relative; border-top-color: transparent; }
+html.js .cta::before {
+  content: ''; position: absolute; inset-inline: 0; top: -1px; height: 1px; background: var(--line-strong);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform 900ms var(--ease-in-out);
+}
+html.js .cta.is-in::before { transform: none; }
+html.js .cta.reveal:not(.is-in) { opacity: 1; transform: none; }
+
+/* پنل: بخش‌های اصلی صفحه پشت سر هم */
+.page { --stagger: 70ms; }
+
+/* =========================================================
+   ۷) واکنش‌های کوچیک (Micro-interactions)
+   ========================================================= */
+/* دکمه‌ها: فشرده شدن موقع کلیک */
+.btn { transition-duration: var(--dur-fast); }
+.btn:active { transform: scale(0.98); }
+.btn-icon { transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-fast) var(--ease-out); }
+.btn-icon:active { transform: scale(0.92); }
+
+/* لینک‌های متنی: خط زیر از راست کشیده می‌شه (به‌جای ظاهر شدن یهویی) */
+html.js .nav-text, html.js .link, html.js .link-btn, html.js .footer-links a, html.js .site-nav > a:not(.btn), html.js .back-link {
+  position: relative; text-decoration: none !important;
+}
+html.js .nav-text::after, html.js .link::after, html.js .link-btn::after, html.js .footer-links a::after, html.js .site-nav > a:not(.btn)::after {
+  content: ''; position: absolute; inset-inline: 0; bottom: -2px; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: right;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+html.js .nav-text:hover::after, html.js .link:hover::after, html.js .link-btn:hover::after,
+html.js .footer-links a:hover::after, html.js .site-nav > a:not(.btn):hover::after { transform: none; }
+/* فلش «برگشت» به سمت مقصدش حرکت می‌کنه */
+.back-link .icon { transition: transform var(--dur-fast) var(--ease-out); }
+.back-link:hover .icon { transform: translateX(3px); }
+
+/* ردیف‌های قابل‌کلیک: کمی به سمت جهت خوندن (چپ) حرکت می‌کنن */
+.top-item { transition: background var(--dur-fast), transform var(--dur-base) var(--ease-out); }
+.top-item:hover { transform: translateX(-3px); }
+
+/* فیلدها: پیام خطا از بالا سُر می‌خوره (لرزش فیلد با JS) */
+.field-error { animation: lp-drop var(--dur-base) var(--ease-out); }
+.input, .select, .textarea, .slug-input { transition-duration: var(--dur-base); }
+
+/* نتیجه‌ی کوتاه کردن: لینک جدید مثل مُهر ظاهر می‌شه */
+.result.flash .result-link { display: inline-block; animation: lp-stamp 520ms var(--ease-spring) 120ms both; }
+.result.flash .result-ic { animation: lp-pop var(--dur-base) var(--ease-spring) both; }
+
+/* آیکونی که عوض می‌شه (کپی ← تیک، نمایش رمز، منو) با یه فنر کوچیک */
+.icon.lp-swap { animation: lp-swap var(--dur-base) var(--ease-spring); }
+
+/* سوییچ: دکمه‌ی گرد با فنر جابه‌جا می‌شه */
+.switch .track::after { transition: transform var(--dur-base) var(--ease-spring), background var(--dur-fast); }
+.switch .track { transition: background var(--dur-base) var(--ease-out); }
+
+/* مودال: باز شدن نرم، و بسته شدن هم با حرکت (نه فقط محو) */
+.modal-backdrop { animation-duration: var(--dur-base); }
+.modal { animation: lp-modal-in var(--dur-base) var(--ease-out); }
+.modal-backdrop.out .modal { transform: translateY(8px) scale(0.98); transition: transform var(--dur-fast) var(--ease-out); }
+
+/* منوی کشویی و پاپ‌اور: از سمت دکمه‌ی خودشون باز می‌شن */
+.dd-menu { transform-origin: top right; animation: lp-menu var(--dur-fast) var(--ease-out); }
+.popover { transform-origin: top left; animation: lp-menu var(--dur-fast) var(--ease-out); }
+
+/* توست: از پایین با فنر خفیف */
+.toast { animation: lp-toast var(--dur-base) var(--ease-spring); }
+
+/* نوار انتخاب گروهی */
+.bulk:not([hidden]) { animation: lp-rise var(--dur-base) var(--ease-out); }
+
+/* سایدبار موبایل */
+.sidebar { transition-duration: var(--dur-base); transition-timing-function: var(--ease-out); }
+
+/* اعلان جدید: یه حلقه دو بار پخش می‌شه و تموم */
+.notif-dot::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--accent);
+  animation: lp-ping 1.4s var(--ease-out) 600ms 2 both;
+}
+
+/* انتخاب بازه: نشانگری که بین گزینه‌ها سُر می‌خوره (با JS ساخته می‌شه) */
+.seg.has-indicator { position: relative; }
+.seg.has-indicator button { position: relative; z-index: 1; }
+.seg.has-indicator button.is-active { background: transparent; box-shadow: none; }
+.seg-indicator {
+  position: absolute; top: 0.2rem; bottom: 0.2rem; right: 0; z-index: 0;
+  border-radius: var(--radius-sm); background: var(--raised); box-shadow: var(--shadow-1);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+/* =========================================================
+   ۸) کی‌فریم‌ها
+   ========================================================= */
+@keyframes lp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lp-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes lp-drop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes lp-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes lp-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+@keyframes lp-swap { from { transform: scale(0.55) rotate(-25deg); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@keyframes lp-stamp {
+  0% { opacity: 0; transform: scale(1.12); }
+  60% { opacity: 1; transform: scale(0.98); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes lp-modal-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes lp-menu { from { opacity: 0; transform: translateY(-4px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes lp-toast { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes lp-ping { from { opacity: 0.55; transform: scale(1); } to { opacity: 0; transform: scale(2.8); } }
+
+/* «حرکت کمتر»: کی‌فریم‌ها هم خاموش (base.css هم مدت‌ها رو صفر می‌کنه) */
+@media (prefers-reduced-motion: reduce) {
+  .lp-bg { opacity: 1; animation: none; }
+  .notif-dot::after { display: none; }
+  .top-item:hover, .back-link:hover .icon { transform: none; }
+}

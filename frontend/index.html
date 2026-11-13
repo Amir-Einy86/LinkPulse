@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <script src="js/animations.js"></script>
 </head>
 <body class="site">
   <a class="skip" href="#main">رفتن به محتوای اصلی</a>
@@ -117,7 +119,7 @@
         <h2>هر چی برای مدیریت لینک‌هات لازمه، و نه بیشتر</h2>
         <p class="muted">ساده شروع می‌شه، ولی وقتی تعداد لینک‌هات زیاد شد هم شلوغ نمی‌شه.</p>
       </header>
-      <ol class="feature-list">
+      <ol class="feature-list" data-stagger>
         <li class="feature reveal">
           <span class="feature-n">۰۱</span>
           <div>
@@ -156,7 +158,7 @@
         <p class="kicker">روند کار</p>
         <h2>سه قدم تا اولین آمار</h2>
       </header>
-      <ol class="steps">
+      <ol class="steps" data-stagger>
         <li class="step reveal"><span class="step-n">۱</span><h3>لینکت رو بذار</h3><p class="muted">آدرس صفحه‌ای که می‌خوای به اشتراک بذاری رو وارد کن.</p></li>
         <li class="step reveal"><span class="step-n">۲</span><h3>لینک کوتاه بگیر</h3><p class="muted">اسلاگ دلخواه بذار یا بذار خودمون بسازیم، بعد کپیش کن.</p></li>
         <li class="step reveal"><span class="step-n">۳</span><h3>آمار رو دنبال کن</h3><p class="muted">با هر کلیک، نمودارها و جدول‌های اون لینک کامل‌تر می‌شن.</p></li>
@@ -212,5 +214,6 @@
   <script src="js/ui.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/pages/landing.js"></script>
+  <script src="js/background.js"></script>
 </body>
 </html>
