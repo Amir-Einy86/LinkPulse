@@ -22,8 +22,9 @@
 ```
 linkpulse/
 ├── README.md                  راهنمای سریع اجرا و استقرار
-├── explain.md                 همین فایل
-├── .gitignore / .dockerignore
+├── explain.md                 همین فایل (کامنت‌های کد هم در بخش ۱۴ همین فایل هستن)
+├── ANIMATIONS-EXPLAIN.md      توضیح کامل انیمیشن‌ها
+├── .gitignore / .dockerignore / .gitattributes
 ├── backend/
 │   ├── package.json           اسکریپت‌ها و وابستگی‌ها
 │   ├── .env.example           الگوی تنظیمات محیط
@@ -43,10 +44,11 @@ linkpulse/
 │   └── tests/                 تست‌های خودکار (۸۶ تست)
 └── frontend/
     ├── *.html                 ۹ صفحه
-    ├── css/                   base, components, app, site
-    ├── js/                    config, utils, api, data, ui, charts, layout, link-modal
+    ├── css/                   fonts, base, components, app, site, animations
+    ├── js/                    config, utils, api, data, ui, charts, layout, link-modal, animations, background
     ├── js/pages/              یک فایل برای هر صفحه
-    └── assets/logo.svg
+    ├── assets/logo.svg
+    └── assets/fonts/          فونت‌ها داخل خود پروژه (Google Fonts توی ایران همیشه در دسترس نیست)
 ```
 
 ---
@@ -469,3 +471,1302 @@ npm test               # ۸۶ تست
 **مثال: route جدید** — تابع کنترلر در فایل کنترلر، یک خط در `routes/index.js` با ترتیب `[limiter] → protect → validate → controller`، schema در `schemas.js`، تست.
 
 **قانون طلایی:** هر ورودی کاربر را (۱) در schema بگیر، (۲) فیلتر `owner` بگذار، (۳) خروجی را از `serialize` رد کن، (۴) متن را در فرانت با `LP.esc` بریز، (۵) تست بنویس.
+
+---
+
+## ۱۴. کامنت‌های کد (منتقل‌شده از داخل فایل‌ها)
+
+همه‌ی کامنت‌های راهنمایی که قبلاً داخل فایل‌ها نوشته شده بودن، از کد پاک شدن و اینجا جمع شدن (۵۰۸ کامنت از ۶۶ فایل). کد خودش هیچ تغییری نکرده.
+
+**چطوری بخونیش:** زیر اسم هر فایل، هر مورد با یه خط کد شروع می‌شه؛ کامنت دقیقاً **بالای** همون خط (یا اگه با «کنار» مشخص شده، **کنار** همون خط) نوشته شده بود. برای پیدا کردنش توی فایل، همون خط کد رو با `Ctrl+F` جستجو کن.
+
+### بک‌اند
+
+#### `backend/.env.example`
+
+- `NODE_ENV=development`
+  کپی کن به .env و مقدارها رو عوض کن (فایل .env رو هیچ‌وقت توی گیت نذار)  
+  محیط اجرا: development | production | test
+- `MONGODB_URI=mongodb://127.0.0.1:27017/linkpulse`
+  آدرس MongoDB. لوکال: mongodb://127.0.0.1:27017/linkpulse  
+  اتلس (Atlas): mongodb+srv://USER:PASSWORD@cluster.mongodb.net/linkpulse
+- `JWT_SECRET=`
+  کلید امضای توکن. حداقل ۳۲ کاراکتر تصادفی. تولیدش:  
+  node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+- `BASE_URL=http://localhost:5000`
+  آدرس عمومی همین سرور؛ لینک کوتاه از روی اون ساخته می‌شه (بدون / آخر)
+- `CORS_ORIGINS=http://localhost:5000,http://127.0.0.1:5000`
+  آدرس‌هایی که اجازه دارن از مرورگر به API درخواست بدن (با ویرگول جدا کن).  
+  اگه فرانت رو از خود سرور بالا میاری (پیش‌فرض)، لازم نیست چیزی اضافه کنی.
+- `TRUST_PROXY=0`
+  اگه پشت پروکسی/میزبان ابری هستی (Render, Railway, Nginx, ...) عدد ۱ بذار تا IP واقعی کاربر خونده بشه
+- `CLICK_RETENTION_DAYS=365`
+  نگه‌داری آمار کلیک‌ها (روز). بعد از این مدت خودکار پاک می‌شن
+- `FRONTEND_DIR=`
+  پوشه‌ی فرانت‌اند که سرور ازش سرو می‌کنه (خالی = پوشه‌ی ../frontend)
+
+#### `backend/Dockerfile`
+
+- `FROM node:22-alpine`
+  ایمیج سبک برای اجرای لینک‌پالس (بک‌اند + فرانت‌اند ثابت)
+
+#### `backend/scripts/seed.js`
+
+- `const crypto = require('crypto');`
+  seed.js — ساخت داده‌ی آزمایشی برای دیدن پنل با آمار پر  
+  اجرا: npm run seed  
+  یه کاربر دمو با چند لینک و کلیک‌های تصادفی می‌سازه.  
+  رمز دمو رو خودت با DEMO_PASSWORD توی .env یا هنگام اجرا بده؛  
+  اگه ندی، یه رمز تصادفی ساخته و همین‌جا چاپ می‌شه.
+
+#### `backend/src/app.js`
+
+- `const path = require('path');`
+  app.js — ساخت اپلیکیشن Express (بدون روشن کردن سرور)  
+  جدا بودنش از server.js باعث می‌شه توی تست‌ها بدون باز کردن پورت ازش استفاده کنیم.  
+  ترتیب میدلورها مهمه: هر درخواست به ترتیب از بالا به پایین رد می‌شه.
+- کنار `if (env.trustProxy) app.set('trust proxy', env.trustProxy);`
+  برای خوندن IP واقعی پشت پروکسی
+- `const secure = helmet({`
+  ۱) هدرهای امنیتی. صفحه‌ی مستندات (Swagger) اسکریپت درون‌خطی داره، پس CSP سخت‌گیرانه براش خاموشه
+- `const allowed = new Set(env.corsOrigins);`
+  ۲) CORS: فقط مبدأهای مجاز می‌تونن از مرورگر به API درخواست بدن.
+- کنار `if (!origin) return cb(null, true);`
+  ابزارهایی مثل curl و درخواست‌های هم‌مبدأ
+- کنار `if (!env.isProd && origin === 'null') return cb(null, true);`
+  باز کردن فرانت با file:// فقط در حالت توسعه
+- `app.use(express.json({ limit: '10kb' }));`
+  ۳) خوندن بدنه‌ی JSON با سقف حجم
+- `app.use('/api', limiters.api, routes);`
+  ۴) API
+- `app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapi, { customSiteTitle: 'مستندات API لینک‌پالس' }));`
+  ۵) مستندات
+- `if (fs.existsSync(env.frontendDir)) {`
+  ۶) فایل‌های فرانت‌اند (صفحه‌های HTML، CSS، JS)
+- `app.get('/:slug', limiters.redirect, redirect);`
+  ۷) لینک‌های کوتاه: GET /:slug  (باید بعد از static و api باشه تا چیزی رو نپوشونه)
+- `app.use((req, res) => {`
+  ۸) هر چیز دیگه: صفحه‌ی ۴۰۴
+
+#### `backend/src/config/db.js`
+
+- `const mongoose = require('mongoose');`
+  db.js — اتصال به MongoDB با Mongoose
+
+#### `backend/src/config/env.js`
+
+- `const path = require('path');`
+  env.js — خوندن و بررسی متغیرهای محیطی (Environment Variables)  
+  همه‌ی تنظیمات و رازها از فایل .env میان، نه از توی کد.  
+  اگه چیز مهمی کم باشه، همون اول اجرا با پیام واضح متوقف می‌شیم.
+- `if (!isTest) {`
+  در تست‌ها خودمون مقدار می‌دیم؛ در بقیه‌ی حالت‌ها اجباریه
+
+#### `backend/src/controllers/analyticsController.js`
+
+- `const Link = require('../models/Link');`
+  analyticsController.js — آمار کلیک  
+  همه‌ی محاسبه‌ها توی خود MongoDB با «Aggregation Pipeline» انجام می‌شن (نه با آوردن همه‌ی  
+  کلیک‌ها به حافظه)؛ یعنی هر ساختار داده‌ای که می‌بینی نتیجه‌ی $match و $group هست.
+- `async function countByKey(match, unit, tz, keys) {`
+  شمارش هر کلید (روز/ساعت) روی یه $match پایه → { key: count }
+- `function toWeekly(points) {`
+  تبدیل نقطه‌های روزانه به هفتگی (از امروز به عقب، هر ۷ روز)
+- `exports.linkAnalytics = asyncHandler(async (req, res) => {`
+  آمار یه لینک
+- `let unit = 'day';`
+  ۱) کلیدهای بازه
+- `const counts = await countByKey({ ...base, at: { $gte: windowStart } }, unit, tz, keys);`
+  ۲) سری زمانی با صفر پر کردن
+- `const inWindow = [`
+  ۳) تفکیک‌ها (فقط کلیک‌های داخل بازه)
+- `const d14 = T.lastDayKeys(14, tz, now);`
+  ۴) شاخص‌ها (مستقل از بازه‌ی انتخابی): ۷ روز اخیر در برابر ۷ روز قبلش، بازدیدکننده‌ی یکتا و منبع اصلی
+- `const recent = await Click.find(base).sort({ at: -1 }).limit(10).select('at country source refHost device b…`
+  ۵) آخرین کلیک‌ها
+- `exports.overview = asyncHandler(async (req, res) => {`
+  نمای کلی داشبورد
+- کنار `const keys = T.lastDayKeys(days * 2, tz, now);`
+  بازه‌ی فعلی + بازه‌ی قبلی (برای درصد تغییر)
+- `const top = activeLinks.slice().sort((a, b) => b.clicks - a.clicks || String(a._id).localeCompare(String(b.…`
+  ۴ لینک برتر + نمودار کوچک ۷ روزه + روند هفتگی
+- `const MILESTONES = [100, 250, 500, 1000, 2500, 5000, 10000, 50000, 100000];`
+  اعلان‌ها (از روی لینک‌ها محاسبه می‌شن)
+
+#### `backend/src/controllers/authController.js`
+
+- `const bcrypt = require('bcryptjs');`
+  authController.js — ثبت‌نام، ورود، خروج، رمز و حذف حساب
+- کنار `const BCRYPT_ROUNDS = 12;`
+  هرچی بیشتر، هش کردن کندتر (و حمله‌ی حدسی سخت‌تر)
+- `const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', BCRYPT_ROUNDS);`
+  برای ورود با ایمیل ناموجود هم یه مقایسه‌ی bcrypt انجام می‌دیم تا زمان پاسخ، وجود یا نبود ایمیل رو لو نده
+- `const user = await User.create({ name, email, passwordHash });`
+  اگه ایمیل تکراری باشه، ایندکس یکتا خطای 11000 می‌ده و errorHandler اون رو به ۴۰۹ تبدیل می‌کنه
+- `exports.logout = (req, res) => res.status(204).end();`
+  توکن‌ها بدون وضعیت (stateless) هستن؛ پس «خروج» یعنی کلاینت توکنش رو دور می‌ریزه.  
+  این مسیر برای کامل بودن قرارداد API هست و درخواست ورود به همه‌ی دستگاه‌ها رو باطل نمی‌کنه.
+- کنار `user.tokenVersion += 1;`
+  همه‌ی توکن‌های قبلی باطل می‌شن
+- کنار `res.json({ data: authPayload(user) });`
+  توکن تازه برای دستگاه فعلی
+
+#### `backend/src/controllers/linkController.js`
+
+- `const Link = require('../models/Link');`
+  linkController.js — مدیریت لینک‌ها (فقط لینک‌های خود کاربر)  
+  قانون طلایی: هر کوئری روی لینک‌ها حتماً شرط «owner: req.user._id» داره.  
+  اگه لینکی مال کاربر دیگه‌ای باشه، جواب ۴۰۴ می‌دیم (نه ۴۰۳) تا وجودش لو نره.
+- کنار `const rx = new RegExp(escapeRegex(q), 'i');`
+  escape: ورودی کاربر هیچ‌وقت به‌عنوان regex اجرا نمی‌شه
+- `async function summarize(owner) {`
+  خلاصه‌ی آمار لینک‌های کاربر (برای کارت‌های بالای صفحه)
+- `link = await Link.create({ ...base, slug });`
+  slug دلخواه: اگه تکراری باشه، ایندکس یکتا خطای 11000 می‌ده → ۴۰۹ با پیام فارسی
+- `for (let i = 0; i < 6 && !link; i++) {`
+  slug تصادفی: اگه تصادفاً تکراری شد، دوباره امتحان می‌کنیم
+
+#### `backend/src/controllers/redirectController.js`
+
+- `const path = require('path');`
+  redirectController.js — باز کردن لینک کوتاه: GET /:slug  
+  مهم‌ترین مسیر عمومی برنامه (بدون نیاز به ورود).  
+  - فقط به آدرس‌هایی ریدایرکت می‌کنیم که موقع ساخت لینک اعتبارسنجی شدن (http/https).  
+  - هیچ‌وقت خودمون به آدرس مقصد درخواست نمی‌زنیم.  
+  - ریدایرکت ۳۰۲ (موقت) می‌دیم نه ۳۰۱؛ وگرنه مرورگر نتیجه رو کش می‌کنه و کلیک‌های بعدی دیده نمی‌شن.
+- `function recordClick(link, req) {`
+  ثبت کلیک بعد از ارسال ریدایرکت (کاربر منتظر دیتابیس نمی‌مونه). خطاها فقط لاگ می‌شن.
+- کنار `if (!SLUG_RE.test(slug)) return next();`
+  چیزی شبیه slug نیست؛ بره سراغ ۴۰۴ عادی
+
+#### `backend/src/controllers/userController.js`
+
+- `const User = require('../models/User');`
+  userController.js — پروفایل و تنظیمات کاربر
+- `['name', 'email', 'username', 'bio'].forEach((k) => {`
+  فقط فیلدهای مجاز رو می‌ذاریم؛ validator هم قبلاً فیلدهای ناشناس رو رد کرده (strict)
+- کنار `await req.user.save();`
+  اگه ایمیل/نام‌کاربری تکراری باشه، خطای 11000 → ۴۰۹
+
+#### `backend/src/docs/openapi.js`
+
+- `` const ref = (n) => ({ $ref: `#/components/schemas/${n}` }); ``
+  openapi.js — مستندات API به فرمت OpenAPI 3 (Swagger)  
+  بعد از روشن کردن سرور، توی مرورگر باز کن:  /docs
+
+#### `backend/src/middleware/auth.js`
+
+- `const jwt = require('jsonwebtoken');`
+  auth.js — میدلور محافظ (protect)  
+  توکن JWT رو از هدر «Authorization: Bearer &lt;token&gt;» می‌خونه، درستیش رو چک می‌کنه  
+  و کاربر رو به req.user می‌ده. هر مسیری که این رو داشته باشه بدون ورود قابل استفاده نیست.
+- `if (!user || (user.tokenVersion || 0) !== payload.tv) throw new AppError('نشست تو تموم شده؛ دوباره وارد شو.…`
+  اگه کاربر حذف شده یا رمزش عوض شده (tokenVersion فرق می‌کنه)، توکن قدیمی دیگه معتبر نیست
+
+#### `backend/src/middleware/errorHandler.js`
+
+- `const AppError = require('../utils/AppError');`
+  errorHandler.js — مدیریت متمرکز خطاها  
+  همه‌ی خطاها (از هر جای برنامه) آخر سر به اینجا می‌رسن و با یه شکل ثابت جواب داده می‌شن:  
+  { "error": { "code": "...", "message": "...", "details": {...} } }  
+  جزئیات فنی (stack) هیچ‌وقت به کاربر نمی‌رسه.
+- `function normalize(err) {`
+  تبدیل انواع خطاهای شناخته‌شده به AppError
+- `if (err.type === 'entity.parse.failed' || (err instanceof SyntaxError && 'body' in err))`
+  JSON خراب
+- `if (err.name === 'ValidationError' && err.errors) {`
+  خطاهای Mongoose
+- `if (err.code === 11000) {`
+  کد 11000 = تکراری بودن مقدار یه فیلد یکتا (unique index)
+- `const errorHandler = (err, req, res, next) => {`
+  eslint-disable-next-line no-unused-vars
+- `if (!env.isTest) console.error('[خطای پیش‌بینی‌نشده]', err);`
+  خطای پیش‌بینی‌نشده: توی لاگ سرور کامل ثبت می‌شه، ولی به کاربر فقط پیام کلی می‌رسه
+
+#### `backend/src/middleware/rateLimiters.js`
+
+- `const rateLimit = require('express-rate-limit');`
+  rateLimiters.js — محدودیت تعداد درخواست (Rate Limiting)  
+  جلوی حدس‌زدن رمز، ساخت انبوه لینک و فشار بیش‌ازحد رو می‌گیره.  
+  در حالت تست غیرفعاله تا تست‌ها گیر نکنن (خود محدودکننده جداگانه تست می‌شه).
+- `api: make(60 * 1000, 300, 'درخواست‌هات زیاد شد؛ یه دقیقه صبر کن.'),`
+  کل API
+- `auth: make(15 * 60 * 1000, 20, 'تلاش‌های ورود/ثبت‌نام زیاد شد؛ ۱۵ دقیقه‌ی دیگه دوباره امتحان کن.'),`
+  ورود و ثبت‌نام: سخت‌گیرانه‌تر
+- `createLink: make(60 * 60 * 1000, 60, 'تعداد لینک‌های ساخته‌شده در این ساعت زیاد شد؛ بعداً دوباره امتحان کن.'),`
+  ساخت لینک
+- `redirect: make(60 * 1000, 600, 'درخواست‌ها زیاد شد؛ کمی بعد دوباره امتحان کن.'),`
+  ریدایرکت‌ها (عمومی): سخاوتمندانه ولی نه بی‌نهایت
+- `_make: make,`
+  برای تست خود محدودکننده
+
+#### `backend/src/middleware/validate.js`
+
+- `const AppError = require('../utils/AppError');`
+  validate — اعتبارسنجی body و query و params با اسکیمای Zod؛ مقدارهای تمیزشده رو جایگزین ورودی خام می‌کنه.
+- کنار `if (!details[key]) details[key] = issue.message;`
+  فقط اولین خطای هر فیلد
+- `req.valid = req.valid || {};`
+  در Express 5، req.query فقط‌خوندنیه؛ پس نتیجه رو توی یه مکان جدا می‌ذاریم
+
+#### `backend/src/models/Click.js`
+
+- `const mongoose = require('mongoose');`
+  Click.js — یه سند به ازای هر کلیک  
+  فقط اطلاعات تحلیلی ذخیره می‌کنیم: آدرس IP و User-Agent خام ذخیره نمی‌شن.
+- `owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },`
+  owner رو اینجا هم نگه می‌داریم تا آمار کل داشبورد بدون join (پیوند بین کالکشن‌ها) درآد
+- `visitor: { type: String, default: '', maxlength: 32 },`
+  هش یک‌طرفه از (IP + مرورگر + نمک روزانه). برای شمردن «بازدیدکننده‌ی یکتا» به کار می‌ره و از روش  
+  نمی‌شه IP رو برگردوند. چون نمک هر روز عوض می‌شه، آدمی که چند روز بیاد، چند بار شمرده می‌شه.
+- کنار `clickSchema.index({ link: 1, at: -1 });`
+  آمار یک لینک
+- کنار `clickSchema.index({ owner: 1, at: -1 });`
+  آمار کل داشبورد
+- `clickSchema.index({ at: 1 }, { expireAfterSeconds: env.clickRetentionDays * 86400 });`
+  TTL index: مونگو خودش سندهایی که از «at + مدت» گذشتن رو پاک می‌کنه
+
+#### `backend/src/models/Link.js`
+
+- `const mongoose = require('mongoose');`
+  Link.js — مدل لینک کوتاه‌شده  
+  هر لینک به یه کاربر (owner) وصله. رابطه‌ی «یک به چند»: یه کاربر چند لینک.
+- `owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },`
+  ارجاع (reference) به کاربر صاحب لینک؛ فقط شناسه‌ی اون رو نگه می‌داریم
+- `slug: { type: String, required: true, unique: true, lowercase: true, trim: true, minlength: 3, maxlength: 3…`
+  slug همیشه با حروف کوچکه تا «Demo» و «demo» یه لینک حساب بشن.  
+  unique:true یه ایندکس یکتا می‌سازه؛ «دیتابیس» جلوی دو لینک با یه slug رو می‌گیره،  
+  حتی اگه دو درخواست همزمان برسن (چک کردن توی کد به‌تنهایی کافی نیست).
+- `expiresAt: { type: Date, default: null },`
+  null = بدون انقضا
+- `clicks: { type: Number, default: 0, min: 0 },`
+  شمارنده‌ی کل کلیک‌ها. هر کلیک یه سند توی کالکشن Click هم داره،  
+  ولی این عدد رو جدا نگه می‌داریم تا برای نمایش لیست، مجبور نباشیم هر بار همه‌ی کلیک‌ها رو بشماریم.
+- `linkSchema.index({ owner: 1, createdAt: -1 });`
+  برای «لینک‌های من» (فیلتر بر اساس صاحب + مرتب‌سازی جدیدترین): این ایندکس ترکیبی کوئری رو سریع می‌کنه
+- `linkSchema.methods.getStatus = function () {`
+  وضعیت لینک از روی فیلدها محاسبه می‌شه و جدا ذخیره نمی‌شه (تا هیچ‌وقت ناهماهنگ نشه)
+
+#### `backend/src/models/User.js`
+
+- `const mongoose = require('mongoose');`
+  User.js — مدل کاربر  
+  «مدل» (Model) در Mongoose یعنی یه کلاس که با یه «کالکشن» (Collection)  
+  توی MongoDB وصله. «اسکیما» (Schema) هم شکل و قانون‌های هر سند (Document) رو  
+  مشخص می‌کنه: چه فیلدهایی داره، نوعشون چیه، کدوم‌ها اجباری‌ان و...
+- `email: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 254 },`
+  ایمیل همیشه با حروف کوچک ذخیره می‌شه تا «A@x.com» و «a@x.com» دو حساب جدا نشن
+- `username: { type: String, unique: true, sparse: true, lowercase: true, trim: true, match: /^[a-z0-9_]{3,24}…`
+  sparse: چند کاربر می‌تونن username نداشته باشن، ولی اگه دارن یکتا باشه
+- `passwordHash: { type: String, required: true, select: false },`
+  هش رمز؛ select:false یعنی تا صریحاً نخوای توی کوئری‌ها برنمی‌گرده
+- `tokenVersion: { type: Number, default: 0, select: false },`
+  با هر تغییر رمز یکی بیشتر می‌شه و توکن‌های قدیمی باطل می‌شن
+- کنار `{ timestamps: true }`
+  createdAt و updatedAt رو خودش پر می‌کنه
+- `userSchema.set('toJSON', {`
+  وقتی کاربر رو به JSON تبدیل می‌کنیم، فیلدهای حساس هیچ‌وقت بیرون نمی‌رن
+
+#### `backend/src/routes/index.js`
+
+- `const express = require('express');`
+  routes/index.js — فهرست همه‌ی مسیرهای API (پیشوند /api)  
+  هر مسیر: [محدودیت تعداد] → [ورود لازم؟] → [اعتبارسنجی] → کنترلر
+- `router.post('/auth/register', limiters.auth, validate({ body: S.register }), auth.register);`
+  احراز هویت
+- `router.get('/users/me', protect, user.getProfile);`
+  کاربر فعلی
+- `router.use('/links', protect);`
+  لینک‌ها ----- (مسیرهای ثابت باید قبل از /:id بیان)
+- `router.get('/analytics/overview', protect, validate({ query: S.overview }), analytics.overview);`
+  آمار کل و اعلان‌ها
+
+#### `backend/src/server.js`
+
+- `const env = require('./config/env');`
+  server.js — نقطه‌ی شروع: اتصال به دیتابیس و روشن کردن سرور  
+  اجرا:  npm start   (یا  npm run dev  برای راه‌اندازی مجدد خودکار)
+- `await Promise.all([User.init(), Link.init(), Click.init()]);`
+  ساخت ایندکس‌ها (اگه از قبل نباشن). برای یکتا بودن slug و ایمیل حیاتیه.
+
+#### `backend/src/utils/AppError.js`
+
+- `class AppError extends Error {`
+  AppError — خطایی که «انتظارش رو داریم» (مثلاً ۴۰۴ یا ۴۰۹) و پیامش به کاربر نشون داده می‌شه.
+- کنار `this.details = details;`
+  مثلاً خطای هر فیلد فرم
+
+#### `backend/src/utils/asyncHandler.js`
+
+- `module.exports = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);`
+  asyncHandler — خطای هر تابع async رو می‌گیره و به میدلور خطا می‌فرسته، تا try/catch تکراری ننویسیم.
+
+#### `backend/src/utils/clickInfo.js`
+
+- `const SEARCH = /(^|\.)(google|bing|yahoo|duckduckgo|yandex|baidu)\./i;`
+  clickInfo.js — از درخواست ریدایرکت، اطلاعات تحلیلی بی‌هویت درمیاره.  
+  بدون هیچ درخواست بیرونی و بدون ذخیره‌ی IP.
+- `function parseCountry(headers) {`
+  کشور رو فقط از هدرهای میزبان‌های ابری (Cloudflare, Vercel) می‌خونیم؛ هیچ جستجوی IP انجام نمی‌دیم
+- `function visitorHash(req) {`
+  هش یک‌طرفه‌ی روزانه برای شمردن بازدیدکننده‌ی یکتا (IP خام هیچ‌جا ذخیره نمی‌شه)
+
+#### `backend/src/utils/csv.js`
+
+- `function cell(v) {`
+  csv.js — ساخت CSV امن. سلول‌هایی که با = + - @ شروع می‌شن (حمله‌ی «Formula Injection» در اکسل) با ' خنثی می‌شن.
+- کنار `const toCSV = (rows) => '﻿' + rows.map((r) => r.map(cell).join(',')).join('\r\n');`
+  BOM تا اکسل فارسی رو درست نشون بده
+
+#### `backend/src/utils/serialize.js`
+
+- `const env = require('../config/env');`
+  serialize.js — شکل لینکی که به فرانت‌اند می‌دیم
+
+#### `backend/src/utils/slug.js`
+
+- `const crypto = require('crypto');`
+  slug.js — قانون‌های slug (بخش آخر لینک کوتاه)  
+  همین قانون‌ها توی فرانت‌اند (utils.js) هم هست؛ ولی اعتبار نهایی با سرور.
+- `const RESERVED_SLUGS = [`
+  اینا با مسیرهای خود برنامه تداخل دارن و نباید slug بشن
+- کنار `const ALPHABET = 'abcdefghijkmnpqrstuvwxyz23456789';`
+  بدون حرف‌های گیج‌کننده مثل l و o
+
+#### `backend/src/utils/timeBuckets.js`
+
+- `const pad = (n) => String(n).padStart(2, '0');`
+  timeBuckets.js — ساخت «سطل‌های زمانی» (روز/ساعت) برای نمودارها  
+  روزها بر اساس منطقه‌ی زمانی کاربر حساب می‌شن (مثلاً Asia/Tehran)، نه UTC؛  
+  وگرنه کلیک ساعت ۲ بامداد ایران توی «دیروز» می‌افتاد.  
+  کلیدها رشته‌ان: «2026-10-30» برای روز و «2026-10-30T14» برای ساعت.
+- `function addDays(key, n) {`
+  جمع/تفریق روز روی «رشته‌ی تاریخ» (بدون دردسر ساعت تابستانی)
+- `function lastDayKeys(n, tz, now = new Date()) {`
+  لیست N کلید روز منتهی به امروز (قدیمی‌ترین اول)
+- `const mongoKey = (unit, tz) => ({`
+  عبارت Mongo برای ساخت کلید از فیلد at
+
+#### `backend/src/utils/url.js`
+
+- `function normalizeUrl(input) {`
+  url.js — اعتبارسنجی امن آدرس مقصد  
+  فقط http و https. هیچ‌وقت خودمون به این آدرس درخواست نمی‌زنیم (جلوگیری از SSRF).
+- `if (!/^[a-z][a-z0-9+.-]*:/i.test(raw)) raw = 'https://' + raw;`
+  اگه پروتکل نداشت (مثلاً example.com/x) https اضافه می‌کنیم
+- کنار `if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;`
+  javascript:, data:, file: و... رد می‌شن
+- کنار `if (u.username || u.password) return null;`
+  آدرس‌های user:pass@host برای فیشینگ استفاده می‌شن
+- کنار `if (!u.hostname || !u.hostname.includes('.')) return null;`
+  localhost و نام‌های بدون نقطه رد می‌شن
+- `function isSelfUrl(url, baseUrl) {`
+  آدرس خود سرویس رو نمی‌خوایم کوتاه بشه (جلوگیری از حلقه‌ی ریدایرکت)
+
+#### `backend/src/validators/schemas.js`
+
+- `const { z } = require('zod');`
+  schemas.js — قانون‌های اعتبارسنجی ورودی با Zod  
+  هر درخواستی که از بیرون میاد «غیرقابل اعتماده». قبل از رسیدن به کنترلر،  
+  شکل و مقدارش رو اینجا چک می‌کنیم. پیام‌ها فارسی‌ان چون مستقیم توی فرم‌ها نمایش داده می‌شن.
+- `const name = z.string(msg('اسم رو وارد کن.')).trim().min(2, 'اسم باید حداقل ۲ حرف باشه.').max(60, 'اسم نبای…`
+  قطعه‌های قابل استفاده‌ی دوباره
+- `const expiresAt = z.union([z.null(), z.string().datetime({ message: 'تاریخ انقضا معتبر نیست.' })])`
+  تاریخ انقضا: null (بدون انقضا) یا یه تاریخ ISO در آینده
+- `const register = z.object({ name, email, password });`
+  احراز هویت و کاربر
+- `const createLink = z.object({`
+  لینک‌ها
+- `const linkAnalytics = z.object({ range: z.enum(['24h', '7d', '30d', 'all']).default('7d'), tz: tz.default('…`
+  آمار
+
+#### `backend/tests/analytics.test.js`
+
+- `async function addClicks(link, user, specs) {`
+  کلیک مستقیم توی دیتابیس می‌سازیم تا زمانش دست خودمون باشه
+- `const keys = series.points.map((p) => p.from);`
+  کلیدها پشت‌سرهم و قدیمی‌ترین اول
+- `await Link.collection.updateOne({ _id: new (require('mongoose').Types.ObjectId)(old.id) }, { $set: { create…`
+  createdAt در Mongoose تغییرناپذیره؛ پس مستقیم روی کالکشن می‌نویسیم
+- کنار `expect(kpis.trend).toBeCloseTo(60, 5);`
+  ۸ کلیک این هفته در برابر ۵ کلیک هفته‌ی قبل
+- کنار `expect(kpis.uniqueVisitors).toBe(6);`
+  visitorها v0 تا v5 هستن (دسته‌ها از v0 شروع می‌شن)
+- `const todayTehran = T.dayKeyOf(new Date(), 'Asia/Tehran');`
+  ۲۰:۴۵ UTC دیروز = ۰۰:۱۵ بامداد امروز تهران (UTC+3:30)
+- `if (at.getTime() > Date.now()) return;`
+  این تست فقط وقتی معنی داره که این کلیک توی گذشته باشه (وگرنه فردا معتبر می‌شه)
+- کنار `expect(d.series.total).toBe(10);`
+  ۶ + ۴ (آرشیو حساب نمی‌شه)
+- کنار `expect(d.series.prevTotal).toBe(2);`
+  ۱۰ روز پیش
+
+#### `backend/tests/auth.test.js`
+
+- کنار `expect(res.body.data.user.email).toBe('sara@example.com');`
+  ایمیل با حروف کوچک ذخیره می‌شه
+- کنار `expect(stored.passwordHash).toMatch(/^\$2[aby]\$/);`
+  هش bcrypt، نه خود رمز
+- کنار `expect((await api().get('/api/auth/me').set(u.auth)).status).toBe(401);`
+  توکن قدیمی
+
+#### `backend/tests/helpers.js`
+
+- `process.env.NODE_ENV = 'test';`
+  helpers.js — کمک‌های مشترک تست‌ها: دیتابیس موقت در حافظه + ساخت کاربر
+- `await Promise.all(Object.values(mongoose.models).map((m) => m.init()));`
+  ایندکس‌های یکتا باید قبل از تست ساخته شده باشن
+- `async function waitFor(fn, { tries = 40, ms = 50 } = {}) {`
+  صبر می‌کنیم تا یه شرط (مثلاً ثبت کلیک در پس‌زمینه) درست بشه
+
+#### `backend/tests/links.test.js`
+
+- کنار `expect(still.title).not.toBe('هک');`
+  لینک دست‌نخورده موند
+- `const bulk = await api().post('/api/links/bulk-delete').set(a.auth).send({ ids: [l2.id, other.id] });`
+  لینک کاربر دیگه توی لیست ids باشه، حذف نمی‌شه
+- کنار `await Link.updateOne({ _id: d.id }, { $set: { expiresAt: new Date(Date.now() - 1000) } });`
+  منقضی‌شده (مستقیم توی دیتابیس)
+- کنار `expect(evil.body.data.links).toHaveLength(0);`
+  «.*» به‌عنوان متن جستجو می‌شه، نه الگوی regex
+- کنار `` expect(res.text).toContain(`"'=HYPERLINK(""http://evil.test"",""کلیک کن"")"`); ``
+  با ' خنثی شده
+
+#### `backend/tests/redirect.test.js`
+
+- کنار `expect(await Click.countDocuments()).toBe(0);`
+  کلیک روی لینک مرده ثبت نمی‌شه
+- `expect(JSON.stringify(click)).not.toMatch(/iPhone|127\.0\.0\.1|::ffff/);`
+  IP و User-Agent خام ذخیره نشده
+
+#### `backend/tests/security.test.js`
+
+- کنار `expect(res.body.data.links).toHaveLength(1);`
+  فیلتری اعمال نشده
+- کنار `expect(bad.status).toBe(400);`
+  مقدار خارج از لیست مجاز
+
+### فرانت‌اند
+
+#### `frontend/assets/logo.svg`
+
+- `<rect width="64" height="64" rx="15" fill="#1d1b18"/>`
+  لوگو: مربع جوهری با خط «پالس» به رنگ تأکید
+
+#### `frontend/css/animations.css`
+
+- `:root {`
+  animations.css — همه‌ی انیمیشن‌های سایت (مفهوم «جوهر و پالس»)  
+  اگه این فایل رو از HTML حذف کنی، سایت بدون انیمیشن کار می‌کنه.  
+  ۱) توکن‌های حرکت: با عوض کردن همین‌ها سرعت کل سایت عوض می‌شه
+- `@media (prefers-reduced-motion: reduce) {`
+  کاربری که توی سیستم‌عاملش «حرکت کمتر» رو روشن کرده (یا انیمیشن‌های ویندوز خاموشه):  
+  هیچ چیزی جابه‌جا نمی‌شه، ولی بخش‌ها موقع اسکرول نرم «محو» ظاهر می‌شن.  
+  (محو شدن حرکت نیست و سرگیجه نمی‌آره.)
+- `html.js .reveal, html.js [data-reveal] {`
+  base.css همه‌ی transitionها رو صفر می‌کنه؛ اینجا فقط محو شدن رو برمی‌گردونیم
+- `html.js .reveal:not(.is-in):not(.line-host):not(.faq):not(.cta) { opacity: 0; }`
+  site.css توی این حالت .reveal رو همیشه نمایش می‌ده؛ اینجا قبل از دیده شدن مخفیش می‌کنیم تا محو بشه
+- `html.js .line-host .line-inner,`
+  خط‌ها و تیترها بدون حرکت، از اول سر جاشون
+- `html:not(.js) .reveal,`
+  ۲) ایمنی: اگه جاوااسکریپت اجرا نشه، هیچ چیزی مخفی نمی‌مونه
+- `html.js [data-reveal] {`
+  ۳) سیستم ظاهر شدن  
+  هر عنصری که data-reveal داشته باشه، تا وقتی وارد صفحه نشده مخفیه.  
+  animations.js وقتی دیدش، کلاس is-in رو اضافه می‌کنه.  
+  --i شماره‌ی عنصر توی گروه پله‌ایه (data-stagger) و تأخیرش رو تعیین می‌کنه.
+- `html.js [data-reveal='lines']:not(.is-in) { opacity: 1; transform: none; }`
+  «lines»: خود عنصر مخفی نمی‌شه، فقط خط‌های داخلش (بخش ۴)
+- `html.js .reveal {`
+  کلاس قدیمی .reveal (لندینگ) هم از همین توکن‌ها و تأخیر پله‌ای استفاده می‌کنه
+- `.lp-bg-host { position: relative; isolation: isolate; }`
+  ۴) پس‌زمینه‌ی زنده (canvas ساخته‌شده توسط background.js)
+- `-webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);`
+  لبه‌های بالا و پایین محو، تا مرز کانواس دیده نشه
+- `.hero > .lp-bg { left: 50%; right: auto; width: 100vw; transform: translateX(-50%); }`
+  هیرو داخل .container هست؛ کانواس تا لبه‌های صفحه پهن می‌شه
+- `html.js .site-header { animation: lp-fade var(--dur-base) var(--ease-out) both; }`
+  ۵) ورود صفحه  
+  هدر سایت
+- `.hero-copy { --stagger: 110ms; }`
+  هیرو: آیتم‌ها با فاصله‌ی بیشتر پشت سر هم میان
+- `html.js .kicker::before {`
+  خط کوچیک کنار برچسب‌ها از راست کشیده می‌شه
+- `html.js .eyebrow::before { transform-origin: right; animation: lp-draw var(--dur-slow) var(--ease-in-out) 1…`
+  برچسب پنل (مثلاً «مدیریت لینک‌ها») موقع لود
+- `.line-mask { display: block; overflow: hidden; padding-block: 0.12em; margin-block: -0.12em; }`
+  تیترهای چندخطی: هر خط از پشت یه لبه‌ی نامرئی بالا میاد.  
+  animations.js هر خط رو داخل .line-mask &gt; .line-inner می‌ذاره.
+- `html.js .line-host.reveal:not(.is-in),`
+  میزبان خط‌ها اگه خودش .reveal باشه، خودش محو نمی‌شه؛ فقط خط‌هاش حرکت می‌کنن
+- `html.js .specimen.reveal {`
+  کارت «قبل و بعد»: مثل برگه‌ای که روی میز گذاشته می‌شه
+- `html.js .specimen .specimen-row,`
+  داخل کارت: آدرس طولانی، فلش، و بعد لینک کوتاه مثل مُهر
+- `html.js .auth-mini[data-reveal] { transition: opacity var(--dur-slow) var(--ease-out), transform 900ms cubi…`
+  کارت نمونه‌ی صفحه‌ی ورود هم همین‌طور گذاشته می‌شه
+- `html.js .mock.reveal:not(.is-in) { transform: translateY(28px) scale(0.985); }`
+  نمونه‌ی پنل در لندینگ: کمی بزرگ‌شونده بالا میاد
+- `.bar-fill { transform-origin: right; }`
+  نمودارها: کشیدن خط با JS انجام می‌شه؛ نوارها از راست پر می‌شن
+- `.feature-list { --stagger: 90ms; }`
+  ۶) انیمیشن‌های اسکرول، هر نوع بخش مخصوص خودش  
+  فهرست امکانات: خط زیر هر آیتم از راست کشیده می‌شه
+- `.steps { --stagger: 240ms; }`
+  سه قدم: خط بالای قدم‌ها پشت سر هم کشیده می‌شه، مثل نوار پیشرفت
+- `html.js .faq.reveal:not(.is-in) { opacity: 1; transform: none; }`
+  سؤال‌ها: خود کادر فوراً دیده می‌شه، جفت‌ها پله‌ای میان
+- `html.js .cta { position: relative; border-top-color: transparent; }`
+  دعوت نهایی: خط بالاش کشیده می‌شه
+- `.page { --stagger: 70ms; }`
+  پنل: بخش‌های اصلی صفحه پشت سر هم
+- `.btn { transition-duration: var(--dur-fast); }`
+  ۷) واکنش‌های کوچیک (Micro-interactions)  
+  دکمه‌ها: فشرده شدن موقع کلیک
+- `html.js .nav-text, html.js .link, html.js .link-btn, html.js .footer-links a, html.js .site-nav > a:not(.bt…`
+  لینک‌های متنی: خط زیر از راست کشیده می‌شه (به‌جای ظاهر شدن یهویی)
+- `.back-link .icon { transition: transform var(--dur-fast) var(--ease-out); }`
+  فلش «برگشت» به سمت مقصدش حرکت می‌کنه
+- `.top-item { transition: background var(--dur-fast), transform var(--dur-base) var(--ease-out); }`
+  ردیف‌های قابل‌کلیک: کمی به سمت جهت خوندن (چپ) حرکت می‌کنن
+- `.field-error { animation: lp-drop var(--dur-base) var(--ease-out); }`
+  فیلدها: پیام خطا از بالا سُر می‌خوره (لرزش فیلد با JS)
+- `.result.flash .result-link { display: inline-block; animation: lp-stamp 520ms var(--ease-spring) 120ms both; }`
+  نتیجه‌ی کوتاه کردن: لینک جدید مثل مُهر ظاهر می‌شه
+- `.icon.lp-swap { animation: lp-swap var(--dur-base) var(--ease-spring); }`
+  آیکونی که عوض می‌شه (کپی ← تیک، نمایش رمز، منو) با یه فنر کوچیک
+- `.switch .track::after { transition: transform var(--dur-base) var(--ease-spring), background var(--dur-fast…`
+  سوییچ: دکمه‌ی گرد با فنر جابه‌جا می‌شه
+- `.modal-backdrop { animation-duration: var(--dur-base); }`
+  مودال: باز شدن نرم، و بسته شدن هم با حرکت (نه فقط محو)
+- `.dd-menu { transform-origin: top right; animation: lp-menu var(--dur-fast) var(--ease-out); }`
+  منوی کشویی و پاپ‌اور: از سمت دکمه‌ی خودشون باز می‌شن
+- `.toast { animation: lp-toast var(--dur-base) var(--ease-spring); }`
+  توست: از پایین با فنر خفیف
+- `.bulk:not([hidden]) { animation: lp-rise var(--dur-base) var(--ease-out); }`
+  نوار انتخاب گروهی
+- `.sidebar { transition-duration: var(--dur-base); transition-timing-function: var(--ease-out); }`
+  سایدبار موبایل
+- `.notif-dot::after {`
+  اعلان جدید: یه حلقه دو بار پخش می‌شه و تموم
+- `.seg.has-indicator { position: relative; }`
+  انتخاب بازه: نشانگری که بین گزینه‌ها سُر می‌خوره (با JS ساخته می‌شه)
+- `@keyframes lp-fade { from { opacity: 0; } to { opacity: 1; } }`
+  ۸) کی‌فریم‌ها
+- `@media (prefers-reduced-motion: reduce) {`
+  «حرکت کمتر»: کی‌فریم‌ها هم خاموش (base.css هم مدت‌ها رو صفر می‌کنه)
+
+#### `frontend/css/app.css`
+
+- `.sidebar {`
+  app.css — ظاهر صفحه‌های داخل پنل  
+  (قاب، داشبورد، لینک‌های من، آمار لینک، پروفایل، تنظیمات)  
+  چون سایت راست‌به‌چپه، به‌جای left/right از ویژگی‌های «منطقی»  
+  مثل inline-start و inline-end استفاده کردیم.  
+  قاب پنل
+- `.page { display: flex; flex-direction: column; gap: 1.25rem; padding: 2.25rem 1.75rem 3.5rem; max-width: 14…`
+  صفحه
+- `.kpis { display: grid; gap: 0; background: var(--raised); border: 1px solid var(--line); border-radius: var…`
+  کارت‌های آمار: یه نوار واحد با جداکننده، نه چند کارت شناور
+- `.grid-main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 1.25rem; align-items…`
+  چیدمان‌ها
+- `.top-links { display: flex; flex-direction: column; }`
+  پرکلیک‌ترین‌ها: فهرست ساده با خط جداکننده
+- `.table-card { padding: 1.25rem 1.25rem 0.5rem; }`
+  جدول لینک‌ها
+- `.details-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wr…`
+  صفحه‌ی آمار لینک
+- `.grid-profile { display: grid; grid-template-columns: minmax(0, 20rem) minmax(0, 1fr); gap: 1.25rem; align-…`
+  پروفایل
+- `.settings-grid { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 1.5rem; align-items: star…`
+  تنظیمات
+- `@media (max-width: 1280px) {`
+  واکنش‌گرایی (موبایل و تبلت)
+
+#### `frontend/css/base.css`
+
+- `:root {`
+  base.css — رنگ‌ها، فونت‌ها، ریست و کلاس‌های کمکی  
+  ظاهر کلی: کاغذی و روشن، با جوهر تیره و فقط «یک» رنگ تأکید  
+  (نارنجی-آجری). اگه بخوای رنگ سایت رو عوض کنی، فقط همین  
+  متغیرهای بالا رو تغییر بده.
+- `--paper: #f5f2eb;`
+  سطح‌ها: کاغذ (پس‌زمینه)، فرورفته، و برجسته (کارت)
+- `--ink: #1d1b18;`
+  جوهر (متن) از پررنگ به کم‌رنگ
+- `--line: #e1dbcf;`
+  خط‌ها
+- `--accent: #c2512b;`
+  تنها رنگ تأکید
+- `--ok: #2f7550;`
+  رنگ‌های وضعیت (کم‌اشباع، هم‌خانواده با کاغذ)
+- `--font-body: 'Vazirmatn', 'Segoe UI', Tahoma, system-ui, sans-serif;`
+  فونت‌ها
+- `--radius-sm: 6px;`
+  گوشه‌ها: داخلی‌ها تیزتر، قاب‌ها نرم‌تر
+- `--shadow-1: 0 1px 2px rgba(62, 48, 30, 0.06);`
+  سایه‌ها رنگِ کاغذ دارن، نه مشکیِ خالص
+- `--sidebar-w: 15rem;`
+  اندازه‌های ثابت قاب پنل
+- `--z-sticky: 30;`
+  لایه‌ها
+- `*, *::before, *::after { box-sizing: border-box; }`
+  ریست
+- `* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }`
+  نوار اسکرول باریک
+- `.icon {`
+  آیکون‌ها (Material Symbols، نازک‌تر از حالت پیش‌فرض)  
+  اگه فونت آیکون لود نشد، فقط یه مربع کوچیک دیده می‌شه، نه یه عالمه متن انگلیسی
+- `.ltr { direction: ltr; unicode-bidi: isolate; text-align: left; }`
+  کلاس‌های کمکی
+- `.tone-primary { color: var(--accent); }`
+  «تُن»ها: primary = رنگ تأکید، secondary = جوهر، tertiary = مثبت
+
+#### `frontend/css/components.css`
+
+- `.brand { display: inline-flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 17px; }`
+  components.css — اجزای تکراری: دکمه، فرم، کارت، جدول، پنجره...  
+  لوگو
+- `.btn {`
+  دکمه
+- `.btn-primary { background: var(--ink); color: var(--paper); }`
+  دکمه‌ی اصلی جوهریه؛ رنگ تأکید فقط برای جاهایی که واقعاً مهمن
+- `.field { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }`
+  فرم
+- `.input-wrap > .input.ltr { padding-inline-start: 0.9rem; padding-inline-end: 2.6rem; }`
+  فیلد آدرس چپ‌به‌چپه؛ آیکون همچنان سمت راسته، پس padding سمت راست رو زیاد می‌کنیم
+- `.input-wrap.has-end > .input.ltr { padding-left: 2.9rem; }`
+  فیلد چپ‌به‌چپ (مثل رمز): دکمه‌ی نمایش رمز سمت چپه، پس فاصله رو سمت چپ می‌ذاریم
+- `.card { background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius-lg); padding:…`
+  کارت: فقط یه خط نازک، بدون سایه
+- `.badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.05rem 0.5rem; border-radius: 4p…`
+  نشان‌ها: مربعی و کم‌صدا، نه قرص‌های براق
+- `.table-wrap { overflow-x: auto; }`
+  جدول
+- `.no-scroll { overflow: hidden; }`
+  پنجره (Modal)
+- `.toasts { position: fixed; z-index: var(--z-toast); bottom: 1.25rem; inset-inline: 0; display: flex; flex-d…`
+  پیام کوتاه (Toast): جوهری روی کاغذ
+- `.dd { position: relative; display: inline-block; }`
+  منوی کشویی
+- `.state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem; padd…`
+  حالت‌های خالی، خطا، بارگذاری
+- `.pager { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;…`
+  صفحه‌بندی
+- `.seg { display: inline-flex; padding: 0.2rem; gap: 0.1rem; border-radius: var(--radius); background: var(--…`
+  دکمه‌ی انتخاب بازه (Segmented)
+- `.chart { position: relative; }`
+  نمودارها
+- `.avatar { width: 2.25rem; height: 2.25rem; border-radius: 9px; display: inline-grid; place-items: center; f…`
+  آواتار: مربع گرد، تک‌رنگ
+- `.skip { position: absolute; top: -4rem; inset-inline-start: 1rem; z-index: 300; padding: 0.5rem 1rem; borde…`
+  دکمه‌ی پرش به محتوا (دسترس‌پذیری)
+
+#### `frontend/css/fonts.css`
+
+- `@font-face {`
+  fonts.css — فونت‌ها از داخل خود پروژه (assets/fonts) لود می‌شن.  
+  Google Fonts توی ایران همیشه در دسترس نیست؛ اگه لود نشه،  
+  فونت‌ها به Tahoma برمی‌گردن و آیکون‌ها به‌شکل مربع خالی دیده می‌شن.  
+  متن اصلی: وزیرمتن (متغیر، همه‌ی وزن‌ها در یک فایل)  
+  تیترها: مرکزی (Markazi Text)  
+  آدرس‌ها و کدها  
+  آیکون‌ها (فونت متغیر: وزن، پرشدگی، اندازه‌ی نوری)
+
+#### `frontend/css/site.css`
+
+- `.container { width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 1.25rem; }`
+  site.css — صفحه‌های عمومی: لندینگ، ورود، ثبت‌نام، ۴۰۴
+- `body.site::before {`
+  بافت خیلی ملایم کاغذ؛ فقط روی صفحه‌های عمومی
+- `.reveal { opacity: 0; transform: translateY(12px); transition: opacity 0.7s var(--ease), transform 0.7s var…`
+  ظاهر شدن نرم
+- `.no-js .reveal { opacity: 1; transform: none; }`
+  اگه جاوااسکریپت کار نکنه، محتوا مخفی نمی‌مونه
+- `.kicker { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--accent); font-size: 13px; fo…`
+  برچسب کوچیک بالای عنوان‌ها: یه خط کوتاه + متن، بدون قرص و نقطه‌ی چشمک‌زن
+- `.site-header { position: sticky; top: 0; z-index: var(--z-sticky); background: rgba(245, 242, 235, 0.86); b…`
+  هدر
+- `.hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 3.5rem; align-items: e…`
+  بخش اول: نامتقارن، متن سمت راست
+- `.specimen { position: relative; display: flex; flex-direction: column; gap: 0.25rem; padding: 1.25rem; bord…`
+  نمونه‌ی «قبل و بعد» کنار عنوان
+- `.mock { margin: 0; border-radius: var(--radius-xl); background: var(--raised); border: 1px solid var(--line…`
+  نمونه‌ی پنل
+- `.section-head { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; margin-bottom:…`
+  عنوان بخش‌ها
+- `.split { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: 4rem; align-items: s…`
+  چیدمان دو ستونه: عنوان چسبان یه طرف، محتوا طرف دیگه
+- `.feature-list { display: flex; flex-direction: column; border-top: 1px solid var(--line-strong); }`
+  امکانات: فهرست شماره‌دار
+- `.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem; counter-reset: s; }`
+  مراحل
+- `.faq { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.25rem 2.5rem; }`
+  سؤال‌های رایج: همه باز، بدون آکاردئون
+- `.cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem 2re…`
+  دعوت نهایی
+- `.site-footer { margin-top: 3rem; padding-block: 2rem; border-top: 1px solid var(--line); }`
+  فوتر
+- `.auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); min-height: 100dvh; }`
+  ورود و ثبت‌نام
+- `.nf { display: flex; flex-direction: column; min-height: 100dvh; }`
+  ۴۰۴
+- `@media (max-width: 960px) {`
+  ریسپانسیو
+
+#### `frontend/dashboard.html`
+
+- `<div class="page-head">`
+  سلام و دکمه‌های بالای صفحه
+- `<section class="kpis kpis-3" aria-label="خلاصه‌ی آمار">`
+  سه کارت آمار
+- `<section class="grid-main">`
+  نمودار کلیک‌ها + پرکلیک‌ترین‌ها
+- `<section class="card table-card">`
+  جدول آخرین لینک‌ها
+
+#### `frontend/index.html`
+
+- `<header class="site-header" id="siteHeader">`
+  هدر
+- `<section class="hero container">`
+  بخش اول
+- `<figure class="specimen reveal" aria-label="مقایسه‌ی لینک خام و لینک کوتاه">`
+  قبل و بعد: همون کاری که سایت انجام می‌ده، بدون توضیح اضافه
+- `<section class="container section-tight">`
+  نمونه‌ی پنل
+- `<section class="container section split" id="features">`
+  امکانات
+- `<section class="container section" id="how">`
+  روند کار
+- `<section class="container section split" id="faq">`
+  سؤال‌های رایج
+- `<section class="container section">`
+  دعوت نهایی
+- `<footer class="site-footer">`
+  فوتر
+
+#### `frontend/js/animations.js`
+
+- `(function () {`
+  animations.js — ظاهر شدن موقع اسکرول، شمارش عددها، کشیدن نمودارها  
+  و واکنش‌های کوچیک. همه‌ی کدهای حرکتی جاوااسکریپت اینجاست.  
+  این فایل داخل &lt;head&gt; لود می‌شه تا کلاس «js» قبل از نمایش صفحه  
+  اضافه بشه (وگرنه محتوا یه لحظه دیده می‌شه و بعد مخفی می‌شه).
+- `const html = document.documentElement;`
+  ۱) علامت «جاوااسکریپت کار می‌کنه»
+- `const EASE_OUT = 'cubic-bezier(0.2, 0.7, 0.2, 1)';`
+  منحنی‌ها و مدت‌ها برای Web Animations API (هم‌خوان با توکن‌های CSS)
+- `const RECIPES = [`
+  ۲) دستورهای صحنه (Recipes): کدوم بخش‌ها چطوری ظاهر بشن.  
+  group  = ظرفی که بچه‌هاش پله‌ای میان  
+  items  = کدوم بچه‌ها (پیش‌فرض: همه‌ی بچه‌های مستقیم)  
+  variant = up | fade | scale  
+  به این شکل لازم نیست به HTML صفحه‌ها چیزی اضافه کنیم.
+- `{ group: '.hero-copy', variant: 'up' },`
+  لندینگ
+- `{ group: '.auth-box', variant: 'up' },`
+  ورود، ثبت‌نام، ۴۰۴
+- `{ group: '.page', variant: 'up' },`
+  پنل: بخش‌های اصلی صفحه، و فهرست‌های داخلشون
+- `const LINE_HEADINGS = '.hero-title, .section-head h2, .split-head h2, .cta h2, .auth-box h1, .auth-aside h2…`
+  تیترهایی که خط به خط از پشت لبه بالا میان
+- کنار `const MAX_INDEX = 8;`
+  آیتم‌های بعد از هشتمی دیگه تأخیر بیشتری نمی‌گیرن
+- `function all(root, sel) {`
+  مثل querySelectorAll، ولی اگه خود root هم با selector جور باشه، اونم برمی‌گردونه
+- `let observer = null;`
+  ۳) سیستم ظاهر شدن
+- `function applyRecipes(root) {`
+  دستورها رو روی صفحه پیاده کن: به بچه‌ها data-reveal بده (اگه از قبل نداشتن)
+- `all(root, '.table tbody').forEach((tbody) => {`
+  ردیف‌های جدول: فقط بار اول، حداکثر ۱۰ ردیف
+- `if (!observer) reveal(el);`
+  حتی با «حرکت کمتر» هم منتظر اسکرول می‌مونیم، چون CSS اون موقع فقط محو می‌کنه
+- `function splitLines(root) {`
+  ۴) تیترها: هر خط داخل یه «پوشش»
+- `if (!h.closest(SELECTOR)) h.setAttribute('data-reveal', 'lines');`
+  اگه هیچ والد ظاهرشونده‌ای نداره، خودش ماشه‌ی حرکت باشه
+- `const FA = '۰۱۲۳۴۵۶۷۸۹';`
+  ۵) شمارش عددها از صفر
+- `function runCounter(el) {`
+  el.__lpTarget = آخرین متنی که خود صفحه نوشته (عدد درست)  
+  el.__lpShown  = عددی که الان روی صفحه دیده می‌شه (وسط شمارش)  
+  el.__lpRun    = شماره‌ی اجرای فعلی؛ با شروع اجرای جدید، اجرای قبلی خودش متوقف می‌شه
+- کنار `if (run !== el.__lpRun) return;`
+  یه اجرای جدیدتر شروع شده
+- کنار `const e = 1 - Math.pow(1 - t, 3);`
+  آروم شدن در پایان
+- کنار `write(finalText);`
+  متن دقیق اصلی، بدون هیچ تفاوتی
+- `function onCounterText(el) {`
+  وقتی خود صفحه عدد رو عوض کرد (مثلاً بازه‌ی ۷ به ۳۰ روز)، از عدد فعلی تا عدد جدید بشمار
+- کنار `if (el.textContent === el.__lpWritten) return;`
+  این تغییر کار خودمون بود
+- کنار `if (el.__lpSeen) runCounter(el);`
+  اگه هنوز دیده نشده، IntersectionObserver شروعش می‌کنه
+- `let chartObserver = null;`
+  ۶) کشیدن نمودارها
+- `function hideChart(el) {`
+  قبل از دیده شدن، خط‌ها رو «نکشیده» نگه دار
+- کنار `if (p.getAttribute('stroke-dasharray')) { p.style.opacity = '0'; return; }`
+  خط‌چین ۴۰۴
+- `const a = p.animate([{ strokeDashoffset: p.__lpLen }, { strokeDashoffset: 0 }], { duration: isSpark ? 600 :…`
+  خط از نقطه‌ی اولش (قدیمی‌ترین روز = سمت راست) کشیده می‌شه
+- `function prepareSegs(root) {`
+  ۷) انتخاب بازه: نشانگر سُرخورنده
+- `function shake(field) {`
+  ۸) واکنش‌ها: لرزش خطا، تعویض آیکون
+- کنار `void icon.offsetWidth;`
+  شروع دوباره‌ی انیمیشن
+- `function init() {`
+  ۹) راه‌اندازی
+- `counterObserver = new IntersectionObserver((entries) => entries.forEach((en) => {`
+  عددها و نمودارها وقتی واقعاً دیده شدن شروع می‌شن (کمی دیرتر از ظاهر شدن کارت)
+- `let pending = new Set();`
+  صفحه‌های پنل محتوا رو بعداً با جاوااسکریپت می‌سازن؛ تغییرها رو دنبال کن
+- `if (el.classList.contains('field') && el.classList.contains('has-error') && !(m.oldValue || '').includes('h…`
+  فیلد خطا گرفت → لرزش
+- `if (el.matches('.seg button') && el.classList.contains('is-active') && !(m.oldValue || '').includes('is-act…`
+  گزینه‌ی فعال بازه عوض شد → سُر خوردن نشانگر
+- `const counter = t.nodeType === 1 && t.matches(COUNTERS) ? t : (t.parentElement && t.parentElement.matches &…`
+  متن عدد عوض شد
+- `const icon = t.nodeType === 1 && t.classList && t.classList.contains('icon') ? t : (t.parentElement && t.pa…`
+  متن آیکون عوض شد (مثلاً content_copy → check)
+
+#### `frontend/js/api.js`
+
+- `(function () {`
+  api.js — ارتباط با بک‌اند (fetch) + نگه‌داری توکن ورود  
+  همه‌ی صفحه‌ها فقط از LP.api و LP.session استفاده می‌کنن؛ هیچ صفحه‌ای مستقیم fetch نمی‌زنه.
+- `const origin = cfg.apiBase || (window.location.protocol === 'file:' ? 'http://localhost:5000' : '');`
+  اگه فایل با دوبار کلیک (file://) باز شده، آدرس لوکال پیش‌فرض رو می‌گیریم
+- `LP.shortHost = (origin ? origin.replace(/^https?:\/\//, '') : window.location.host).replace(/\/+$/, '') || …`
+  دامنه‌ای که توی پیشوند اسلاگ نشون می‌دیم (فقط ظاهریه؛ آدرس واقعی لینک رو سرور می‌ده)
+- `class ApiError extends Error {`
+  خطای API: پیام فارسی سرور + کد + خطای هر فیلد
+- `const token = {`
+  توکن
+- `async function request(method, path, { query, body, auth = true, raw = false } = {}) {`
+  درخواست
+- کنار `try { json = await res.json(); } catch (e) {`
+  بدنه‌ی خالی یا غیر JSON
+- `if (res.status === 401 && auth && (err.code === 'TOKEN_INVALID' || err.code === 'UNAUTHORIZED')) kickToLogi…`
+  توکن نامعتبر یا منقضی: کاربر رو به صفحه‌ی ورود می‌بریم
+- `const session = (LP.session = { user: null });`
+  نشست (Session): کاربر فعلی  
+  داخل صفحه‌های پنل (data-shell="app") اگه توکن نباشه، همون اول می‌ره صفحه‌ی ورود.  
+  LP.ready یه Promise ـه که وقتی کاربر از سرور خونده شد حل می‌شه؛ هر صفحه کارش رو بعد از اون شروع می‌کنه.
+- کنار `try { await LP.api.post('/auth/logout', undefined, {}); } catch (e) {`
+  مهم نیست؛ توکن رو هر حال پاک می‌کنیم
+- کنار `LP.ready = new Promise(() => {});`
+  هیچ‌وقت حل نمی‌شه؛ صفحه در حال رفتنه
+- `if (e.status !== 401) showFatal(e.message);`
+  خطای شبکه: به‌جای صفحه‌ی سفید، یه پیام می‌ذاریم
+
+#### `frontend/js/background.js`
+
+- `(function () {`
+  background.js — پس‌زمینه‌ی زنده: خط‌های کم‌رنگ دفتر + موج «پالس»  
+  روی هر بخشی که توی TARGETS اومده یه &lt;canvas&gt; پشت محتوا می‌سازه.  
+  هر چند ثانیه یه موج به شکل لوگو از راست به چپ روی یکی از خط‌ها رد می‌شه؛  
+  انگار یه کلیک ثبت شده.
+- `const TARGETS = [`
+  کجا پس‌زمینه داشته باشیم؟  broken = موج وسط راه قطع می‌شه (برای ۴۰۴)
+- `const CONFIG = {`
+  تنظیمات ظاهری (برای کم و زیاد کردن شدت، همین‌ها رو عوض کن)
+- کنار `lineGap: 42,`
+  فاصله‌ی خط‌ها (پیکسل)
+- کنار `lineAlpha: 0.05,`
+  پررنگی خط‌ها (۰ تا ۱)
+- کنار `pulseAlpha: 0.55,`
+  پررنگی موج
+- کنار `pulseWidth: 96,`
+  پهنای شکل موج
+- کنار `pulseHeight: 15,`
+  ارتفاع موج
+- کنار `trail: 280,`
+  طول دنباله‌ی پشت موج
+- کنار `speed: 150,`
+  سرعت (پیکسل در ثانیه)
+- کنار `every: 2.2,`
+  هر چند ثانیه یه موج جدید
+- کنار `maxPulses: 3,`
+  حداکثر موج هم‌زمان
+- `const WAVE = [[0, 0], [0.21, 0], [0.36, -0.58], [0.6, 0.42], [0.76, -0.29], [0.83, 0], [1, 0]];`
+  شکل موج = همون خط لوگو، به‌صورت نقطه‌های نرمال‌شده (x از ۰ تا ۱، y از -۱ تا ۱)
+- `function rgb(name, fallback) {`
+  رنگ‌ها از متغیرهای CSS
+- `function resize() {`
+  اندازه‌ی واقعی کانواس با توجه به وضوح صفحه (devicePixelRatio)
+- `function fadeAt(x) {`
+  قطع شدن موج برای ۴۰۴: وقتی از وسط صفحه رد شد، کم‌کم محو و صاف می‌شه
+- کنار `const dt = Math.min(0.05, (now - (last || now)) / 1000);`
+  حداکثر ۵۰ms، تا بعد از برگشت به تب پرش نکنه
+- `function start() {`
+  فقط وقتی کانواس توی صفحه‌ست و تب باز و فعاله، انیمیشن اجرا می‌شه
+- `pulses = [];`
+  «حرکت کمتر»: یه تصویر ثابت با یه موج وسط صفحه
+
+#### `frontend/js/charts.js`
+
+- `(function () {`
+  charts.js — نمودارهای SVG بدون هیچ کتابخونه‌ی بیرونی  
+  line:   نمودار خطی با tooltip  
+  donut:  نمودار دایره‌ای  
+  spark:  نمودار کوچیک داخل ردیف‌ها  
+  نکته: چون سایت راست‌به‌چپه، قدیمی‌ترین نقطه سمت راست و  
+  جدیدترین نقطه سمت چپ قرار می‌گیره.
+- `const css = getComputedStyle(document.documentElement);`
+  رنگ‌ها مستقیم از متغیرهای CSS (base.css) خونده می‌شن تا همیشه با ظاهر سایت یکی باشن
+- `charts.series = [charts.colors.primary, charts.colors.secondary, charts.colors.outline, v('--paper-deep', '…`
+  رنگ‌های سری برای نمودار دایره‌ای: تأکید، جوهر، و دو خاکستری گرم
+- `function smoothPath(pts, minY, maxY) {`
+  مسیر نرم (منحنی) از بین نقطه‌ها
+- `function niceMax(v) {`
+  بالاترین عدد «قشنگ» برای محور عمودی
+- `charts.line = (mount, { labels, tips, values, unit = 'کلیک', color = charts.colors.primary, ariaLabel = 'نم…`
+  نمودار خطی
+- کنار `x: n === 1 ? W / 2 : W - PX - (i * innerW) / (n - 1),`
+  ایندکس ۰ = قدیمی‌ترین = سمت راست
+- `const tickCount = Math.min(n, 7);`
+  برچسب‌های محور افقی (حداکثر ۷ تا)
+- `const left = Math.min(88, Math.max(12, (p.x / W) * 100));`
+  موقعیت tooltip بر حسب درصد، تا با تغییر اندازه‌ی نمودار هم درست بمونه
+- `charts.donut = (mount, { items, centerValue, centerLabel, ariaLabel = 'نمودار دایره‌ای' }) => {`
+  نمودار دایره‌ای
+- `charts.spark = (values, color = charts.colors.secondary, w = 80, h = 22) => {`
+  نمودار کوچیک (Sparkline)
+
+#### `frontend/js/config.js`
+
+- `window.LP_CONFIG = {`
+  config.js — تنظیمات اتصال به بک‌اند  
+  فرانت رو از خود سرور (مثلاً http://localhost:5000) باز کنی، هیچ تغییری لازم نیست.  
+  اگه فرانت رو جدا میزبانی می‌کنی (مثلاً Netlify) یا با دوبار کلیک روی فایل HTML (file://) باز می‌کنی،  
+  آدرس سرور API رو اینجا بنویس. بدون «/» آخر و بدون «/api»:  
+  window.LP_CONFIG = { apiBase: 'https://api.example.com' };
+- کنار `apiBase: '',`
+  خالی = همین دامنه‌ای که صفحه از اون باز شده
+
+#### `frontend/js/data.js`
+
+- `(function () {`
+  data.js — «مخزن داده»: تنها جایی که با API حرف می‌زنه  
+  صفحه‌ها هیچ‌وقت آدرس API یا ساختار پاسخ سرور رو نمی‌دونن؛ فقط LP.data رو صدا می‌زنن.  
+  اینجا پاسخ‌های سرور به چیزی تبدیل می‌شن که صفحه‌ها راحت نمایش بدن  
+  (برچسب فارسی، تاریخ شمسی و ...).
+- `data.STATUS_LABEL = { active: 'فعال', expired: 'منقضی‌شده', archived: 'آرشیو' };`
+  برچسب‌های فارسی
+- کنار `try { regionNames = new Intl.DisplayNames(['fa'], { type: 'region' }); } catch (e) {`
+  مرورگر قدیمی
+- `const DEFAULT_SETTINGS = { defaultExpiry: 'none', pageSize: 6, notifyMilestone: true, notifyExpiry: true, n…`
+  کاربر، پروفایل و تنظیمات
+- کنار `LP.session.start(res.data);`
+  توکن تازه (توکن قبلی باطل شده)
+- `data.status = (l) => l.status;`
+  کمک‌های نمایشی لینک
+- `data.list = async (query) => {`
+  لینک‌ها  
+  query: { q, status, sort, page, limit }  →  { links, summary, meta }
+- `data.exportCsv = async (query) => {`
+  دانلود CSV ساخته‌شده توسط سرور (با همون فیلترهای لیست)
+- `const dayDate = (key) => new Date(key + 'T12:00:00');`
+  آمار
+- کنار `const dayDate = (key) => new Date(key + 'T12:00:00');`
+  ظهر؛ تا اختلاف ساعت، روز رو عوض نکنه
+- `function formatSeries(series) {`
+  نقطه‌های سری زمانی سرور → برچسب فارسی برای نمودار
+- `const notifText = (n) => {`
+  اعلان‌ها  
+  سرور اعلان‌ها رو از روی لینک‌ها می‌سازه؛ «خونده‌شده» بودن فقط توی همین مرورگر نگه‌داری می‌شه
+
+#### `frontend/js/layout.js`
+
+- `(function () {`
+  layout.js — ساخت «قاب» صفحه‌های داخل پنل (منوی کناری + نوار بالا)  
+  به‌جای اینکه توی ۵ فایل HTML یه منو رو کپی کنیم، یک‌بار اینجا  
+  ساخته می‌شه. هر صفحه فقط باید این‌ها رو داشته باشه:  
+  &lt;body data-shell="app" data-page="dashboard" data-title="داشبورد"&gt;  
+  &lt;main id="main" class="page"&gt; ... &lt;/main&gt;
+- `function toggleMenu(force) {`
+  باز و بسته شدن منو در موبایل
+- `function mount() {`
+  سوار کردن همه‌چیز روی صفحه (بعد از آماده شدن کاربر)
+
+#### `frontend/js/link-modal.js`
+
+- `(function () {`
+  link-modal.js — پنجره‌ی «ساخت لینک» و «ویرایش لینک»  
+  هر جا لازمش داشتی: LP.linkModal.open()            ← ساخت  
+  LP.linkModal.open({ link })    ← ویرایش  
+  LP.linkModal.open({ url })     ← ساخت با آدرس از پیش پرشده  
+  بعد از ذخیره، رویداد lp:links-changed ارسال می‌شه و صفحه‌ها  
+  خودشون رو دوباره می‌کشن.
+- `}`
+  تکراری بودن slug رو خود سرور (با ایندکس یکتای دیتابیس) تشخیص می‌ده
+- `const fields = { url, title: titleEl, slug, expiresAt: expiry };`
+  خطای هر فیلد رو کنار همون فیلد نشون می‌دیم؛ بقیه‌ی خطاها به‌صورت پیام
+- `function showSuccess(created) {`
+  بعد از ساخت لینک: نمایش نتیجه به‌جای بستن ناگهانی پنجره
+
+#### `frontend/js/pages/auth.js`
+
+- `(function () {`
+  auth.js — صفحه‌های ورود و ثبت‌نام  
+  با سرور حرف می‌زنه: /auth/login و /auth/register
+- `function showServerError(form, err, fields) {`
+  خطای هر فیلد کنار همون فیلد؛ بقیه‌ی خطاها به‌صورت پیام
+- `if (LP.session.isLoggedIn() && !LP.query('out') && !LP.query('expired')) {`
+  اگه قبلاً وارد شده، مستقیم بره پنل (به‌جز بعد از خروج)
+- `const loginForm = $('#loginForm');`
+  ورود
+- `const regForm = $('#registerForm');`
+  ثبت‌نام
+
+#### `frontend/js/pages/dashboard.js`
+
+- `(function () {`
+  dashboard.js — منطق صفحه‌ی داشبورد  
+  داده‌ها از سرور میان: /analytics/overview و /links
+- کنار `let overview = null;`
+  آخرین پاسخ نمای کلی
+- کنار `let recent = [];`
+  لینک‌های جدول
+- کنار `let loadSeq = 0;`
+  برای نادیده گرفتن پاسخ‌های قدیمی (وقتی کاربر سریع فیلتر عوض می‌کنه)
+- `function renderGreeting() {`
+  سلام
+- `function renderKpis() {`
+  کارت‌های آمار
+- `function renderChart() {`
+  نمودار
+- `function renderTop() {`
+  پرکلیک‌ترین‌ها (بر اساس کل کلیک‌ها؛ نمودار کوچک: ۷ روز اخیر)
+- `function recentRow(l) {`
+  جدول آخرین لینک‌ها
+- `async function fetchRecent() {`
+  دریافت داده‌ها
+- `$('#createBtn').addEventListener('click', () => LP.linkModal.open());`
+  رویدادها
+- `document.addEventListener('lp:links-changed', loadAll);`
+  هر وقت لینکی ساخته/ویرایش/حذف شد، صفحه خودش رو دوباره می‌کشه
+- `const pending = LP.store.get('pending-url', null);`
+  اگه کاربر از صفحه‌ی اصلی با یه آدرس اومده، پنجره‌ی ساخت لینک با همون آدرس باز می‌شه
+
+#### `frontend/js/pages/landing.js`
+
+- `(function () {`
+  landing.js — صفحه‌ی اصلی (لندینگ)  
+  فرم کوتاه‌کننده: اگه وارد شده باشی لینک واقعی می‌سازه؛ وگرنه آدرس رو نگه می‌داره و می‌ره ثبت‌نام.
+- `const form = $('#shortenForm');`
+  فرم کوتاه‌کننده
+- `if (!LP.session.isLoggedIn()) {`
+  مهمان: آدرس رو نگه می‌داریم تا بعد از ثبت‌نام، پنجره‌ی ساخت لینک با همین آدرس باز بشه
+- کنار `void resultBox.offsetWidth;`
+  برای شروع دوباره‌ی انیمیشن
+- `const demoValues = [212, 260, 241, 305, 288, 352, 330, 410, 372, 455, 421, 498, 470, 540];`
+  نمودار نمونه
+- `const toggle = $('#navToggle');`
+  منوی موبایل
+- `const header = $('#siteHeader');`
+  سایه‌ی هدر هنگام اسکرول
+- `const items = LP.$$('.reveal');`
+  ظاهر شدن نرم بخش‌ها هنگام اسکرول
+
+#### `frontend/js/pages/link-details.js`
+
+- `(function () {`
+  link-details.js — صفحه‌ی آمار و تحلیل یک لینک  
+  آدرس: link-details.html?id=...   (اگه id نباشه، پرکلیک‌ترین لینک نشون داده می‌شه)
+- کنار `let all = [];`
+  لینک‌ها برای انتخاب‌گر بالای صفحه
+- کنار `let stats = null;`
+  آخرین پاسخ آمار
+- `function renderLoading() {`
+  حالت‌های خاص
+- `async function renderPage() {`
+  بدنه‌ی اصلی صفحه
+- `const listRes = await LP.data.list({ sort: 'clicks', limit: 50 });`
+  لینک انتخاب‌شده (یا پرکلیک‌ترین) + لیست برای انتخاب‌گر
+- `async function changeRange(next) {`
+  فقط بخش‌های وابسته به بازه (نمودار و تفکیک‌ها) دوباره ساخته می‌شن
+- `const items = b.sources.map((s, i) => Object.assign({}, s, { color: SOURCE_COLORS[i % 4] }));`
+  منبع بازدید
+- `$('#deviceBars').innerHTML = b.devices.map((d) => {`
+  دستگاه‌ها
+- `` $('#countryList').innerHTML = b.countries.map((c) => ` ``
+  کشورها
+- `function wire() {`
+  رویدادها
+- `document.addEventListener('lp:links-changed', () => { if (link) renderPage(); });`
+  بعد از ویرایش/آرشیو، صفحه دوباره ساخته می‌شه (اگه لینک حذف شده باشه صفحه‌ی «پیدا نشد» میاد)
+
+#### `frontend/js/pages/my-links.js`
+
+- `(function () {`
+  my-links.js — صفحه‌ی «لینک‌های من»  
+  جستجو، فیلتر وضعیت، مرتب‌سازی و صفحه‌بندی روی سرور انجام می‌شن  
+  (سرور فقط همون چند لینک صفحه‌ی فعلی رو می‌فرسته). انتخاب گروهی، ویرایش،  
+  آرشیو، حذف و خروجی CSV هم از همین‌جا.
+- `async function load({ keepRows = false } = {}) {`
+  دریافت از سرور
+- `if (state.page > res.meta.pages) { state.page = res.meta.pages; return load({ keepRows: true }); }`
+  اگه صفحه‌ی فعلی از آخرین صفحه بیشتره (مثلاً بعد از حذف)، می‌ریم آخرین صفحه
+- `function renderStrip() {`
+  کارت‌های خلاصه
+- `function rowHtml(l) {`
+  ردیف جدول
+- `function render() {`
+  رندر جدول و صفحه‌بندی
+- `function filtersChanged() {`
+  بعد از هر تغییر فیلتر، صفحه به اول برمی‌گرده و انتخاب‌ها پاک می‌شن
+- `async function confirmDelete(ids) {`
+  حذف (یکی یا گروهی)
+- `async function exportCsv() {`
+  خروجی CSV (سرور با همون فیلترها می‌سازه)
+- `const statusDd = LP.ui.dropdown($('#statusDd'), { options: STATUSES, value: 'all', icon: 'filter_alt', aria…`
+  رویدادها
+- `render();`
+  شروع
+- کنار `render();`
+  اول اسکلت بارگذاری
+
+#### `frontend/js/pages/profile.js`
+
+- `(function () {`
+  profile.js — صفحه‌ی پروفایل
+- `function renderCard() {`
+  کارت کناری
+- `function renderActivity() {`
+  فعالیت اخیر (از روی لینک‌های ساخته‌شده)
+- کنار `} catch (err) {`
+  کارت با صفرها نشون داده می‌شه؛ خطای اصلی صفحه نیست
+- `function fillForm() {`
+  فرم
+
+#### `frontend/js/pages/settings.js`
+
+- `(function () {`
+  settings.js — صفحه‌ی تنظیمات
+- `const FIELDS = [`
+  ترجیح‌ها و اعلان‌ها (ذخیره‌ی خودکار روی سرور)
+- کنار `fillSettings();`
+  برگردوندن به مقدار قبلی
+- `const form = $('#passForm');`
+  تغییر رمز (فقط اعتبارسنجی؛ هیچ رمزی ذخیره نمی‌شه)
+- `$('#deleteLinks').addEventListener('click', async () => {`
+  بخش خطرناک
+- `$('#deleteAccount').addEventListener('click', () => {`
+  حذف حساب: هم رمز عبور لازمه (امنیت)، هم نوشتن کلمه‌ی «حذف» (جلوگیری از کلیک اشتباهی)
+
+#### `frontend/js/ui.js`
+
+- `(function () {`
+  ui.js — اجزای رابط کاربری مشترک  
+  پیام (toast)، پنجره (modal)، تأیید (confirm)، منوی کشویی،  
+  خطای فرم، صفحه‌بندی و حالت‌های خالی/خطا/بارگذاری
+- `ui.toast = (message, type = 'success', ms = 3200) => {`
+  پیام کوتاه (Toast)
+- `let modalSeq = 0;`
+  پنجره (Modal)
+- کنار `if (prevFocus && prevFocus.focus) { try { prevFocus.focus(); } catch (e) {`
+  مهم نیست
+- کنار `if (all[all.length - 1] !== backdrop) return;`
+  فقط بالاترین پنجره
+- `ui.confirm = ({ title, message, messageHtml, confirmText = 'باشه', cancelText = 'انصراف', danger = false, i…`
+  پنجره‌ی تأیید  
+  خروجی یه Promise هست: true اگه کاربر تأیید کرد، وگرنه false
+- `ui.dropdown = (mount, { options, value, icon, onChange, ariaLabel } = {}) => {`
+  منوی کشویی (Dropdown)
+- `ui.popover = (trigger, panel) => {`
+  منوی ساده برای هر دکمه (مثل اعلان‌ها): فقط باز و بسته می‌کنه
+- `ui.busy = (btn, on, label) => {`
+  دکمه در حالت «در حال انجام»
+- `ui.setError = (input, msg) => {`
+  خطای فرم
+- `ui.liveClear = (form) => {`
+  وقتی کاربر تایپ می‌کنه، خطای همون فیلد پاک می‌شه
+- `ui.focusFirstError = (form) => {`
+  اولین فیلد خطادار رو فوکوس می‌کنه
+- `ui.emptyState = ({ icon = 'link_off', title, text, action = '' }) =>`
+  حالت‌های خالی، خطا و بارگذاری
+- `ui.pager = (mount, { page, pages, total, pageSize, noun = 'مورد', onChange }) => {`
+  صفحه‌بندی
+- `ui.wirePasswordToggles = (root = document) => {`
+  نمایش/مخفی کردن رمز عبور
+- `` ui.statusBadge = (status) => `<span class="badge badge-${status}">${esc(LP.data.STATUS_LABEL[status])}</spa… ``
+  نمایش وضعیت لینک به‌صورت نشان
+- `ui.delta = (v) => {`
+  نمایش درصد تغییر (مثلاً +۱۸٫۴٪)
+
+#### `frontend/js/utils.js`
+
+- `(function () {`
+  utils.js — ابزارهای کوچک و مشترک  
+  همه‌چیز زیر یک «فضای نام» (namespace) به اسم LP قرار می‌گیره  
+  تا با بقیه‌ی کدها قاطی نشه.
+- `LP.$ = (sel, root = document) => root.querySelector(sel);`
+  انتخاب عنصر
+- `const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };`
+  امن‌سازی متن قبل از innerHTML (جلوگیری از XSS)
+- `const memory = {};`
+  ذخیره‌سازی (localStorage با پشتیبان در حافظه)
+- کنار `try { localStorage.removeItem('lp:' + key); } catch (e) {`
+  مهم نیست
+- `const nf = new Intl.NumberFormat('fa-IR');`
+  عدد و تاریخ فارسی
+- `LP.normalizeUrl = (raw) => {`
+  آدرس و اسلاگ  
+  آدرس رو تمیز می‌کنه. فقط http و https قبول می‌شه. اگه معتبر نبود null برمی‌گردونه.
+- `LP.copy = async (text) => {`
+  کلیپ‌بورد، دانلود، CSV
+- کنار `try { ok = document.execCommand('copy'); } catch (_) {`
+  مهم نیست
+- `const csvCell = (c) => {`
+  اگه سلولی با = + - @ شروع بشه، اکسل ممکنه فرمولش کنه؛ جلوش یه ' می‌ذاریم.
+- `LP.debounce = (fn, ms = 200) => {`
+  کمکی‌های عمومی
+- `LP.go = (url) => { window.location.href = url; };`
+  رفتن به یه صفحه
+- `LP.toEnDigits = (s) =>`
+  تبدیل رقم‌های فارسی/عربی به انگلیسی (برای خوندن ورودی کاربر)
+- `LP.initial = (name) => (String(name || '').trim()[0] || '؟');`
+  حرف اول اسم برای آواتار
+- `LP.greeting = () => {`
+  سلام بر اساس ساعت
+
+#### `frontend/link-details.html`
+
+- `<main id="main" class="page" aria-live="polite"></main>`
+  محتوای این صفحه توسط js/pages/link-details.js ساخته می‌شه
+
+#### `frontend/my-links.html`
+
+- `<section class="kpis kpis-4" id="strip" aria-label="خلاصه‌ی لینک‌ها"></section>`
+  خلاصه‌ی آمار
+- `<section class="card toolbar-card" aria-label="جستجو و فیلتر">`
+  نوار جستجو و فیلتر
+- `<section class="card table-card">`
+  جدول
+
+#### `frontend/profile.html`
+
+- `<aside class="card profile-card">`
+  کارت خلاصه‌ی پروفایل
+- `<section class="card">`
+  فرم ویرایش  
+  فعالیت اخیر
+
+#### `frontend/settings.html`
+
+- `<section class="card" id="sec-prefs">`
+  ترجیح‌ها
+- `<section class="card" id="sec-notify">`
+  اعلان‌ها
+- `<section class="card" id="sec-password">`
+  رمز عبور
+- `<section class="card danger-zone" id="sec-data">`
+  داده‌ها و حساب
+

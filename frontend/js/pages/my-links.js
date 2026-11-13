@@ -1,9 +1,3 @@
-/* =========================================================
-   my-links.js — صفحه‌ی «لینک‌های من»
-   جستجو، فیلتر وضعیت، مرتب‌سازی و صفحه‌بندی روی سرور انجام می‌شن
-   (سرور فقط همون چند لینک صفحه‌ی فعلی رو می‌فرسته). انتخاب گروهی، ویرایش،
-   آرشیو، حذف و خروجی CSV هم از همین‌جا.
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -40,7 +34,6 @@
 
   const query = () => ({ q: state.q.trim(), status: state.status, sort: SERVER_SORT[state.sort] });
 
-  /* ---------- دریافت از سرور ---------- */
   async function load({ keepRows = false } = {}) {
     const mine = ++seq;
     state.error = null;
@@ -48,7 +41,6 @@
     try {
       const res = await LP.data.list(Object.assign(query(), { page: state.page, limit: LP.data.settings().pageSize }));
       if (mine !== seq) return;
-      // اگه صفحه‌ی فعلی از آخرین صفحه بیشتره (مثلاً بعد از حذف)، می‌ریم آخرین صفحه
       if (state.page > res.meta.pages) { state.page = res.meta.pages; return load({ keepRows: true }); }
       Object.assign(state, { links: res.links, summary: res.summary, meta: res.meta, loading: false });
     } catch (err) {
@@ -58,7 +50,6 @@
     render();
   }
 
-  /* ---------- کارت‌های خلاصه ---------- */
   function renderStrip() {
     const s = state.summary || { total: 0, clicks: 0, active: 0, topLink: null };
     const ratio = s.total ? (s.active / s.total) * 100 : 0;
@@ -69,7 +60,6 @@
       <article class="kpi kpi-mini"><div class="grow col"><span class="kpi-label">پرکلیک‌ترین لینک</span><div class="kpi-value kpi-value-sm truncate">${s.topLink ? esc(s.topLink.title) : '—'}</div><span class="dim small">${s.topLink ? LP.fa(s.topLink.clicks) + ' کلیک' : 'هنوز کلیکی نگرفتی'}</span></div><span class="kpi-icon tone-warning"><span class="icon">emoji_events</span></span></article>`;
   }
 
-  /* ---------- ردیف جدول ---------- */
   function rowHtml(l) {
     const ic = LP.data.iconFor(l.url);
     return `
@@ -98,7 +88,6 @@
       </tr>`;
   }
 
-  /* ---------- رندر جدول و صفحه‌بندی ---------- */
   function render() {
     renderStrip();
     const mount = $('#tableMount');
@@ -155,7 +144,6 @@
     $('#selCount').textContent = LP.fa(n);
   }
 
-  // بعد از هر تغییر فیلتر، صفحه به اول برمی‌گرده و انتخاب‌ها پاک می‌شن
   function filtersChanged() {
     state.page = 1;
     state.selected.clear();
@@ -164,7 +152,6 @@
 
   const findLink = (id) => state.links.find((l) => l.id === id);
 
-  /* ---------- حذف (یکی یا گروهی) ---------- */
   async function confirmDelete(ids) {
     const one = ids.length === 1 ? findLink(ids[0]) : null;
     const ok = await LP.ui.confirm({
@@ -184,7 +171,6 @@
     }
   }
 
-  /* ---------- خروجی CSV (سرور با همون فیلترها می‌سازه) ---------- */
   async function exportCsv() {
     if (!state.summary || !state.summary.total) return LP.ui.toast('لینکی برای خروجی گرفتن نیست.', 'info');
     try {
@@ -195,7 +181,6 @@
     }
   }
 
-  /* ---------- رویدادها ---------- */
   const statusDd = LP.ui.dropdown($('#statusDd'), { options: STATUSES, value: 'all', icon: 'filter_alt', ariaLabel: 'فیلتر وضعیت', onChange: (v) => { state.status = v; filtersChanged(); } });
   LP.ui.dropdown($('#sortDd'), { options: SORTS, value: state.sort, icon: 'sort', ariaLabel: 'مرتب‌سازی', onChange: (v) => { state.sort = v; filtersChanged(); } });
 
@@ -249,7 +234,6 @@
 
   document.addEventListener('lp:links-changed', () => load({ keepRows: true }));
 
-  /* ---------- شروع ---------- */
-  render(); // اول اسکلت بارگذاری
+  render();
   LP.ready.then(() => load());
 })();

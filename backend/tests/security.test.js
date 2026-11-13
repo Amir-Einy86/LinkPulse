@@ -62,9 +62,9 @@ describe('مدیریت خطا', () => {
     await api().post('/api/links').set(u.auth).send({ url: 'https://example.com/x' });
     const res = await api().get('/api/links?q[$ne]=x&status[$gt]=&sort[$ne]=a').set(u.auth);
     expect(res.status).toBe(200);
-    expect(res.body.data.links).toHaveLength(1); // فیلتری اعمال نشده
+    expect(res.body.data.links).toHaveLength(1);
     const bad = await api().get('/api/links?status=%7B%22%24ne%22%3Anull%7D').set(u.auth);
-    expect(bad.status).toBe(400); // مقدار خارج از لیست مجاز
+    expect(bad.status).toBe(400);
   });
 
   test('مسیر ناموجود و متد اشتباه → ۴۰۴ استاندارد', async () => {

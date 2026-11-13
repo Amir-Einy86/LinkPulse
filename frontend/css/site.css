@@ -1,30 +1,22 @@
 @charset "UTF-8";
-/* =========================================================
-   site.css — صفحه‌های عمومی: لندینگ، ورود، ثبت‌نام، ۴۰۴
-   ========================================================= */
 
 .container { width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 1.25rem; }
 .section { padding-block: 5rem 5.5rem; }
 .section-tight { padding-block: 0 2rem; }
 
-/* بافت خیلی ملایم کاغذ؛ فقط روی صفحه‌های عمومی */
 body.site::before {
   content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.35;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .28 0 0 0 0 .2 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---------- ظاهر شدن نرم ---------- */
 .reveal { opacity: 0; transform: translateY(12px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
 .reveal.is-in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
-/* اگه جاوااسکریپت کار نکنه، محتوا مخفی نمی‌مونه */
 .no-js .reveal { opacity: 1; transform: none; }
 
-/* برچسب کوچیک بالای عنوان‌ها: یه خط کوتاه + متن، بدون قرص و نقطه‌ی چشمک‌زن */
 .kicker { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--accent); font-size: 13px; font-weight: 600; }
 .kicker::before { content: ''; width: 1.5rem; height: 1px; background: currentColor; }
 
-/* ---------- هدر ---------- */
 .site-header { position: sticky; top: 0; z-index: var(--z-sticky); background: rgba(245, 242, 235, 0.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color 0.2s; }
 .site-header.is-scrolled { border-color: var(--line); }
 .site-header-in { display: flex; align-items: center; gap: 1.5rem; height: 4rem; }
@@ -37,7 +29,6 @@ body.site::before {
 .nav-text:hover { color: var(--ink); text-decoration: underline; }
 .nav-toggle { display: none; margin-inline-start: auto; }
 
-/* ---------- بخش اول: نامتقارن، متن سمت راست ---------- */
 .hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 3.5rem; align-items: end; padding-block: 5rem 4rem; }
 .hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 1.4rem; }
 .hero-title { font-family: var(--font-display); font-size: clamp(2.4rem, 5vw, 3.9rem); font-weight: 600; line-height: 1.18; letter-spacing: -0.005em; }
@@ -56,7 +47,6 @@ body.site::before {
 .result-note { flex-basis: 100%; }
 .trust { color: var(--ink-3); font-size: 13px; }
 
-/* نمونه‌ی «قبل و بعد» کنار عنوان */
 .specimen { position: relative; display: flex; flex-direction: column; gap: 0.25rem; padding: 1.25rem; border-radius: var(--radius-xl); background: var(--raised); border: 1px solid var(--line); box-shadow: var(--shadow-2); transform: rotate(-1.2deg); }
 .specimen.is-in { transform: rotate(-1.2deg); }
 .specimen-row { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.9rem 1rem; border-radius: var(--radius); min-width: 0; }
@@ -72,7 +62,6 @@ body.site::before {
 .specimen-arrow { display: grid; place-items: center; color: var(--ink-4); }
 .specimen-arrow .icon { font-size: 18px; }
 
-/* ---------- نمونه‌ی پنل ---------- */
 .mock { margin: 0; border-radius: var(--radius-xl); background: var(--raised); border: 1px solid var(--line); overflow: hidden; }
 .mock-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
 .mock-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; padding: 1.25rem 1.5rem; }
@@ -80,17 +69,14 @@ body.site::before {
 .mock-stat b { font-family: var(--font-display); font-size: 2.4rem; line-height: 1.2; font-weight: 600; }
 .mock-chart { padding: 1.5rem; }
 
-/* ---------- عنوان بخش‌ها ---------- */
 .section-head { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; margin-bottom: 2.75rem; max-width: 38rem; }
 .section-head h2, .split-head h2 { font-family: var(--font-display); font-size: clamp(1.9rem, 3.6vw, 2.8rem); font-weight: 600; line-height: 1.25; }
 .section-head p { max-width: 34rem; }
 
-/* چیدمان دو ستونه: عنوان چسبان یه طرف، محتوا طرف دیگه */
 .split { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: 4rem; align-items: start; }
 .split-head { position: sticky; top: 6rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; }
 .split-head p.muted { max-width: 22rem; }
 
-/* ---------- امکانات: فهرست شماره‌دار ---------- */
 .feature-list { display: flex; flex-direction: column; border-top: 1px solid var(--line-strong); }
 .feature { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: 1rem; padding-block: 1.75rem; border-bottom: 1px solid var(--line); }
 .feature-n { font-family: var(--font-mono); font-size: 12px; color: var(--accent); padding-top: 0.35rem; }
@@ -99,7 +85,6 @@ body.site::before {
 .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
 .tags li { padding: 0.1rem 0.6rem; border-radius: 4px; border: 1px solid var(--line-strong); font-size: 12px; color: var(--ink-2); }
 
-/* ---------- مراحل ---------- */
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem; counter-reset: s; }
 .step { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.25rem; border-top: 2px solid var(--ink); }
 .step:not(:first-child) { border-top-color: var(--line-strong); }
@@ -107,26 +92,20 @@ body.site::before {
 .step-n { font-family: var(--font-display); font-size: 3rem; font-weight: 500; line-height: 1; color: var(--ink-4); margin-bottom: 0.5rem; }
 .step:first-child .step-n { color: var(--accent); }
 
-/* ---------- سؤال‌های رایج: همه باز، بدون آکاردئون ---------- */
 .faq { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.25rem 2.5rem; }
 .faq > div { padding-top: 1rem; border-top: 1px solid var(--line-strong); }
 .faq dt { font-weight: 700; margin-bottom: 0.4rem; }
 .faq dd { margin: 0; color: var(--ink-2); line-height: 2; }
 
-/* ---------- دعوت نهایی ---------- */
 .cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem 2rem; padding-top: 2.5rem; border-top: 1px solid var(--line-strong); }
 .cta h2 { font-family: var(--font-display); font-size: clamp(2rem, 4.4vw, 3.4rem); font-weight: 600; line-height: 1.2; max-width: 34rem; }
 
-/* ---------- فوتر ---------- */
 .site-footer { margin-top: 3rem; padding-block: 2rem; border-top: 1px solid var(--line); }
 .footer-in { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2.5rem; }
 .footer-links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; color: var(--ink-2); }
 .footer-links a:hover { color: var(--ink); }
 .footer-note { margin-inline-start: auto; }
 
-/* =========================================================
-   ورود و ثبت‌نام
-   ========================================================= */
 .auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); min-height: 100dvh; }
 .auth-main { display: flex; flex-direction: column; padding: 1.5rem clamp(1.25rem, 5vw, 4rem); }
 .auth-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
@@ -153,9 +132,6 @@ body.site::before {
 .strength-bar i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width 0.25s, background 0.25s; }
 .check-row { display: flex; align-items: flex-start; gap: 0.6rem; }
 
-/* =========================================================
-   ۴۰۴
-   ========================================================= */
 .nf { display: flex; flex-direction: column; min-height: 100dvh; }
 .nf-main { flex: 1; display: grid; place-items: center; padding: 3rem 1.25rem; text-align: center; }
 .nf-body { display: flex; flex-direction: column; align-items: center; gap: 1.2rem; max-width: 30rem; }
@@ -163,9 +139,6 @@ body.site::before {
 .nf-body h1 { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 600; line-height: 1.3; }
 .nf-line { width: 100%; max-width: 18rem; height: 3.5rem; color: var(--accent); }
 
-/* =========================================================
-   ریسپانسیو
-   ========================================================= */
 @media (max-width: 960px) {
   .hero { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; padding-block: 3.5rem 3rem; }
   .specimen { max-width: 30rem; }

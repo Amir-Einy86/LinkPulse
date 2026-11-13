@@ -12,10 +12,10 @@ describe('ثبت‌نام', () => {
     const res = await api().post('/api/auth/register').send({ name: 'سارا', email: 'Sara@Example.com', password: 'Passw0rd!x' });
     expect(res.status).toBe(201);
     expect(res.body.data.token).toEqual(expect.any(String));
-    expect(res.body.data.user.email).toBe('sara@example.com'); // ایمیل با حروف کوچک ذخیره می‌شه
+    expect(res.body.data.user.email).toBe('sara@example.com');
     expect(JSON.stringify(res.body)).not.toMatch(/passwordHash|Passw0rd|tokenVersion/);
     const stored = await User.findOne({ email: 'sara@example.com' }).select('+passwordHash');
-    expect(stored.passwordHash).toMatch(/^\$2[aby]\$/); // هش bcrypt، نه خود رمز
+    expect(stored.passwordHash).toMatch(/^\$2[aby]\$/);
   });
 
   test('ایمیل تکراری → ۴۰۹ (حتی با حروف بزرگ)', async () => {
@@ -93,7 +93,7 @@ describe('رمز و حذف حساب', () => {
     const u = await registerUser();
     const res = await api().put('/api/users/me/password').set(u.auth).send({ currentPassword: u.password, newPassword: 'NewPassw0rd!y' });
     expect(res.status).toBe(200);
-    expect((await api().get('/api/auth/me').set(u.auth)).status).toBe(401); // توکن قدیمی
+    expect((await api().get('/api/auth/me').set(u.auth)).status).toBe(401);
     expect((await api().get('/api/auth/me').set(bearer(res.body.data.token))).status).toBe(200);
     expect((await api().post('/api/auth/login').send({ email: u.email, password: u.password })).status).toBe(401);
     expect((await api().post('/api/auth/login').send({ email: u.email, password: 'NewPassw0rd!y' })).status).toBe(200);

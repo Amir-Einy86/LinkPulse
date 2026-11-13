@@ -1,8 +1,3 @@
-/* =========================================================
-   linkController.js — مدیریت لینک‌ها (فقط لینک‌های خود کاربر)
-   قانون طلایی: هر کوئری روی لینک‌ها حتماً شرط «owner: req.user._id» داره.
-   اگه لینکی مال کاربر دیگه‌ای باشه، جواب ۴۰۴ می‌دیم (نه ۴۰۳) تا وجودش لو نره.
-   ========================================================= */
 const Link = require('../models/Link');
 const Click = require('../models/Click');
 const env = require('../config/env');
@@ -24,7 +19,7 @@ function buildFilter(owner, { q, status }) {
   else if (status === 'expired') Object.assign(filter, { archived: false, expiresAt: { $lte: now, $ne: null } });
   else if (status === 'archived') filter.archived = true;
   if (q) {
-    const rx = new RegExp(escapeRegex(q), 'i'); // escape: ورودی کاربر هیچ‌وقت به‌عنوان regex اجرا نمی‌شه
+    const rx = new RegExp(escapeRegex(q), 'i');
     const search = [{ title: rx }, { slug: rx }, { url: rx }];
     filter.$and = [...(filter.$and || []), { $or: search }];
   }
@@ -38,7 +33,6 @@ const SORTS = {
   title: { title: 1, _id: 1 },
 };
 
-// خلاصه‌ی آمار لینک‌های کاربر (برای کارت‌های بالای صفحه)
 async function summarize(owner) {
   const now = new Date();
   const [row] = await Link.aggregate([
@@ -102,10 +96,8 @@ exports.create = asyncHandler(async (req, res) => {
 
   let link;
   if (slug) {
-    // slug دلخواه: اگه تکراری باشه، ایندکس یکتا خطای 11000 می‌ده → ۴۰۹ با پیام فارسی
     link = await Link.create({ ...base, slug });
   } else {
-    // slug تصادفی: اگه تصادفاً تکراری شد، دوباره امتحان می‌کنیم
     for (let i = 0; i < 6 && !link; i++) {
       const candidate = randomSlug(6 + Math.floor(i / 2));
       if (isReserved(candidate)) continue;

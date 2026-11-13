@@ -1,5 +1,11 @@
 node_modules/
 .env
-*.log
 .env.*
 !.env.example
+*.log
+coverage/
+.playwright-cli/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

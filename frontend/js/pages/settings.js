@@ -1,12 +1,8 @@
-/* =========================================================
-   settings.js — صفحه‌ی تنظیمات
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
   const $ = LP.$;
 
-  /* ---------- ترجیح‌ها و اعلان‌ها (ذخیره‌ی خودکار روی سرور) ---------- */
   const FIELDS = [
     { id: 'setExpiry', key: 'defaultExpiry', get: (el) => el.value, set: (el, v) => { el.value = v; } },
     { id: 'setPage', key: 'pageSize', get: (el) => Number(el.value), set: (el, v) => { el.value = String(v); } },
@@ -24,13 +20,12 @@
         await LP.data.saveSettings({ [f.key]: f.get(e.target) });
         LP.ui.toast('تنظیمات ذخیره شد.');
       } catch (err) {
-        fillSettings(); // برگردوندن به مقدار قبلی
+        fillSettings();
         LP.ui.toast(err.message, 'error', 5000);
       }
     });
   });
 
-  /* ---------- تغییر رمز (فقط اعتبارسنجی؛ هیچ رمزی ذخیره نمی‌شه) ---------- */
   const form = $('#passForm');
   LP.ui.wirePasswordToggles(document);
   LP.ui.liveClear(form);
@@ -86,7 +81,6 @@
     LP.ui.busy(btn, false);
   });
 
-  /* ---------- بخش خطرناک ---------- */
   $('#deleteLinks').addEventListener('click', async () => {
     let n = 0;
     try { n = (await LP.data.list({ limit: 1 })).summary.total; } catch (err) { return LP.ui.toast(err.message, 'error', 5000); }
@@ -103,7 +97,6 @@
     } catch (err) { LP.ui.toast(err.message, 'error', 5000); }
   });
 
-  // حذف حساب: هم رمز عبور لازمه (امنیت)، هم نوشتن کلمه‌ی «حذف» (جلوگیری از کلیک اشتباهی)
   $('#deleteAccount').addEventListener('click', () => {
     const body = document.createElement('div');
     body.innerHTML = `

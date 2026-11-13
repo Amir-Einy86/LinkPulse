@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="لینک‌پالس">
-  <!-- لوگو: مربع جوهری با خط «پالس» به رنگ تأکید -->
   <rect width="64" height="64" rx="15" fill="#1d1b18"/>
   <path d="M11 35h9l6-14 10 24 7-17 3 7h7" fill="none" stroke="#e0754d" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

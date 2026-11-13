@@ -1,7 +1,3 @@
-/* =========================================================
-   server.js — نقطه‌ی شروع: اتصال به دیتابیس و روشن کردن سرور
-   اجرا:  npm start   (یا  npm run dev  برای راه‌اندازی مجدد خودکار)
-   ========================================================= */
 const env = require('./config/env');
 const { connectDB } = require('./config/db');
 const createApp = require('./app');
@@ -12,7 +8,6 @@ const User = require('./models/User');
 async function main() {
   await connectDB();
   console.log('✅ به MongoDB وصل شدیم.');
-  // ساخت ایندکس‌ها (اگه از قبل نباشن). برای یکتا بودن slug و ایمیل حیاتیه.
   await Promise.all([User.init(), Link.init(), Click.init()]);
 
   const app = createApp();

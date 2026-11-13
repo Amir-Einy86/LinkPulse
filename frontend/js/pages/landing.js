@@ -1,13 +1,8 @@
-/* =========================================================
-   landing.js — صفحه‌ی اصلی (لندینگ)
-   فرم کوتاه‌کننده: اگه وارد شده باشی لینک واقعی می‌سازه؛ وگرنه آدرس رو نگه می‌داره و می‌ره ثبت‌نام.
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
   const $ = LP.$;
 
-  /* ---------- فرم کوتاه‌کننده ---------- */
   const form = $('#shortenForm');
   const input = $('#urlInput');
   const resultBox = $('#resultBox');
@@ -25,7 +20,6 @@
     const clean = LP.normalizeUrl(input.value);
     if (!clean) return showError('این آدرس معتبر نیست. فقط آدرس‌های http و https قبول می‌شن؛ مثلاً https://example.com/page');
 
-    // مهمان: آدرس رو نگه می‌داریم تا بعد از ثبت‌نام، پنجره‌ی ساخت لینک با همین آدرس باز بشه
     if (!LP.session.isLoggedIn()) {
       LP.store.set('pending-url', clean);
       return LP.go('register.html');
@@ -46,7 +40,7 @@
     $('#copyIcon').textContent = 'content_copy';
     resultBox.hidden = false;
     resultBox.classList.remove('flash');
-    void resultBox.offsetWidth; // برای شروع دوباره‌ی انیمیشن
+    void resultBox.offsetWidth;
     resultBox.classList.add('flash');
   });
 
@@ -58,12 +52,10 @@
     setTimeout(() => { $('#copyLabel').textContent = 'کپی'; $('#copyIcon').textContent = 'content_copy'; }, 2000);
   });
 
-  /* ---------- نمودار نمونه ---------- */
   const demoValues = [212, 260, 241, 305, 288, 352, 330, 410, 372, 455, 421, 498, 470, 540];
   const labels = demoValues.map((_, i) => LP.fmtShort(Date.now() - (demoValues.length - 1 - i) * 864e5));
   LP.charts.line($('#demoChart'), { labels, values: demoValues, ariaLabel: 'نمودار نمونه‌ی کلیک‌ها' });
 
-  /* ---------- منوی موبایل ---------- */
   const toggle = $('#navToggle');
   const nav = $('#siteNav');
   function setNav(open) {
@@ -75,13 +67,11 @@
   nav.addEventListener('click', (e) => { if (e.target.closest('a')) setNav(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setNav(false); });
 
-  /* ---------- سایه‌ی هدر هنگام اسکرول ---------- */
   const header = $('#siteHeader');
   const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  /* ---------- ظاهر شدن نرم بخش‌ها هنگام اسکرول ---------- */
   const items = LP.$$('.reveal');
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {

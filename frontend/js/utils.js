@@ -1,23 +1,15 @@
-/* =========================================================
-   utils.js — ابزارهای کوچک و مشترک
-   همه‌چیز زیر یک «فضای نام» (namespace) به اسم LP قرار می‌گیره
-   تا با بقیه‌ی کدها قاطی نشه.
-   ========================================================= */
 (function () {
   'use strict';
   const LP = (window.LP = window.LP || {});
 
   LP.config = { appName: 'لینک‌پالس' };
 
-  /* ---------- انتخاب عنصر ---------- */
   LP.$ = (sel, root = document) => root.querySelector(sel);
   LP.$$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-  /* ---------- امن‌سازی متن قبل از innerHTML (جلوگیری از XSS) ---------- */
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   LP.esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ESC[c]);
 
-  /* ---------- ذخیره‌سازی (localStorage با پشتیبان در حافظه) ---------- */
   const memory = {};
 
   LP.store = {
@@ -35,11 +27,10 @@
     },
     remove(key) {
       delete memory[key];
-      try { localStorage.removeItem('lp:' + key); } catch (e) { /* مهم نیست */ }
+      try { localStorage.removeItem('lp:' + key); } catch (e) {  }
     },
   };
 
-  /* ---------- عدد و تاریخ فارسی ---------- */
   const nf = new Intl.NumberFormat('fa-IR');
   const nf1 = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 1 });
   LP.fa = (n) => nf.format(Number(n) || 0);
@@ -70,8 +61,6 @@
     return LP.fmtDate(d);
   };
 
-  /* ---------- آدرس و اسلاگ ---------- */
-  // آدرس رو تمیز می‌کنه. فقط http و https قبول می‌شه. اگه معتبر نبود null برمی‌گردونه.
   LP.normalizeUrl = (raw) => {
     let s = String(raw || '').trim();
     if (!s) return null;
@@ -98,7 +87,6 @@
     return out;
   };
 
-  /* ---------- کلیپ‌بورد، دانلود، CSV ---------- */
   LP.copy = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -110,13 +98,12 @@
       document.body.appendChild(ta);
       ta.select();
       let ok = false;
-      try { ok = document.execCommand('copy'); } catch (_) { /* مهم نیست */ }
+      try { ok = document.execCommand('copy'); } catch (_) {  }
       ta.remove();
       return ok;
     }
   };
 
-  // اگه سلولی با = + - @ شروع بشه، اکسل ممکنه فرمولش کنه؛ جلوش یه ' می‌ذاریم.
   const csvCell = (c) => {
     let s = String(c == null ? '' : c);
     if (/^[=+\-@]/.test(s)) s = "'" + s;
@@ -135,7 +122,6 @@
     setTimeout(() => URL.revokeObjectURL(url), 1500);
   };
 
-  /* ---------- کمکی‌های عمومی ---------- */
   LP.debounce = (fn, ms = 200) => {
     let t;
     return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
@@ -143,19 +129,15 @@
   LP.sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   LP.query = (name) => new URLSearchParams(window.location.search).get(name);
 
-  // رفتن به یه صفحه
   LP.go = (url) => { window.location.href = url; };
 
-  /* ---------- تبدیل رقم‌های فارسی/عربی به انگلیسی (برای خوندن ورودی کاربر) ---------- */
   LP.toEnDigits = (s) =>
     String(s || '')
       .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
       .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 
-  /* ---------- حرف اول اسم برای آواتار ---------- */
   LP.initial = (name) => (String(name || '').trim()[0] || '؟');
 
-  /* ---------- سلام بر اساس ساعت ---------- */
   LP.greeting = () => {
     const h = new Date().getHours();
     if (h < 5) return 'شب بخیر';

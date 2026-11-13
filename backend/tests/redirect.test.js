@@ -41,7 +41,7 @@ describe('ریدایرکت', () => {
       expect(res.headers.location).toBeUndefined();
     }
     await wait(150);
-    expect(await Click.countDocuments()).toBe(0); // کلیک روی لینک مرده ثبت نمی‌شه
+    expect(await Click.countDocuments()).toBe(0);
   });
 
   test('لینکی که تازه از آرشیو درآوردیم یا انقضاش برداشته شد دوباره کار می‌کنه', async () => {
@@ -68,7 +68,6 @@ describe('ثبت کلیک', () => {
     const click = await waitFor(() => Click.findOne({ link: link.id }).lean());
     expect(click).toMatchObject({ device: 'mobile', browser: 'safari', source: 'social', refHost: 't.me', country: 'IR' });
     expect(click.visitor).toMatch(/^[a-f0-9]{24}$/);
-    // IP و User-Agent خام ذخیره نشده
     expect(JSON.stringify(click)).not.toMatch(/iPhone|127\.0\.0\.1|::ffff/);
     const updated = await waitFor(async () => { const l = await Link.findById(link.id).lean(); return l.clicks === 1 ? l : null; });
     expect(updated.clicks).toBe(1);

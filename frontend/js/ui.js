@@ -1,15 +1,9 @@
-/* =========================================================
-   ui.js — اجزای رابط کاربری مشترک
-   پیام (toast)، پنجره (modal)، تأیید (confirm)، منوی کشویی،
-   خطای فرم، صفحه‌بندی و حالت‌های خالی/خطا/بارگذاری
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
   const esc = LP.esc;
   const ui = (LP.ui = {});
 
-  /* ---------- پیام کوتاه (Toast) ---------- */
   ui.toast = (message, type = 'success', ms = 3200) => {
     let box = document.getElementById('toasts');
     if (!box) {
@@ -32,7 +26,6 @@
     }, ms);
   };
 
-  /* ---------- پنجره (Modal) ---------- */
   let modalSeq = 0;
   ui.modal = ({ title = '', icon, body, footer, size, dismissible = true, onClose } = {}) => {
     const prevFocus = document.activeElement;
@@ -74,12 +67,12 @@
       backdrop.classList.add('out');
       setTimeout(() => backdrop.remove(), 150);
       if (!document.querySelector('.modal-backdrop:not(.out)')) document.body.classList.remove('no-scroll');
-      if (prevFocus && prevFocus.focus) { try { prevFocus.focus(); } catch (e) { /* مهم نیست */ } }
+      if (prevFocus && prevFocus.focus) { try { prevFocus.focus(); } catch (e) {  } }
       if (onClose) onClose(result);
     };
     function onKey(e) {
       const all = document.querySelectorAll('.modal-backdrop:not(.out)');
-      if (all[all.length - 1] !== backdrop) return; // فقط بالاترین پنجره
+      if (all[all.length - 1] !== backdrop) return;
       if (e.key === 'Escape' && dismissible) { e.stopPropagation(); close('esc'); return; }
       if (e.key === 'Tab') {
         const f = Array.from(modal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select,textarea')).filter((el) => el.offsetParent !== null);
@@ -100,8 +93,6 @@
     return { el: modal, body: bodyEl, close };
   };
 
-  /* ---------- پنجره‌ی تأیید ---------- */
-  // خروجی یه Promise هست: true اگه کاربر تأیید کرد، وگرنه false
   ui.confirm = ({ title, message, messageHtml, confirmText = 'باشه', cancelText = 'انصراف', danger = false, icon, requireText } = {}) =>
     new Promise((resolve) => {
       const body = document.createElement('div');
@@ -132,7 +123,6 @@
       footer.querySelector('[data-cancel]').addEventListener('click', () => { answered = true; resolve(false); m.close('cancel'); });
     });
 
-  /* ---------- منوی کشویی (Dropdown) ---------- */
   ui.dropdown = (mount, { options, value, icon, onChange, ariaLabel } = {}) => {
     let current = value !== undefined ? value : options[0].value;
     mount.classList.add('dd');
@@ -181,7 +171,6 @@
     return { get: () => current, set: (v) => { current = v; render(); } };
   };
 
-  // منوی ساده برای هر دکمه (مثل اعلان‌ها): فقط باز و بسته می‌کنه
   ui.popover = (trigger, panel) => {
     const close = () => { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); document.removeEventListener('click', outside); document.removeEventListener('keydown', onEsc); };
     const outside = (e) => { if (!panel.contains(e.target) && !trigger.contains(e.target)) close(); };
@@ -197,7 +186,6 @@
     return { close };
   };
 
-  /* ---------- دکمه در حالت «در حال انجام» ---------- */
   ui.busy = (btn, on, label) => {
     if (on) {
       btn.dataset.html = btn.innerHTML;
@@ -211,7 +199,6 @@
     }
   };
 
-  /* ---------- خطای فرم ---------- */
   ui.setError = (input, msg) => {
     const field = input.closest('.field');
     if (!field) return;
@@ -238,18 +225,15 @@
     if (el) el.remove();
   };
   ui.clearAll = (form) => form.querySelectorAll('.field.has-error input,.field.has-error select,.field.has-error textarea').forEach(ui.clearError);
-  // وقتی کاربر تایپ می‌کنه، خطای همون فیلد پاک می‌شه
   ui.liveClear = (form) => {
     form.addEventListener('input', (e) => { if (e.target.closest && e.target.closest('.field')) ui.clearError(e.target); });
     form.addEventListener('change', (e) => { if (e.target.closest && e.target.closest('.field')) ui.clearError(e.target); });
   };
-  // اولین فیلد خطادار رو فوکوس می‌کنه
   ui.focusFirstError = (form) => {
     const el = form.querySelector('[aria-invalid="true"]');
     if (el) el.focus();
   };
 
-  /* ---------- حالت‌های خالی، خطا و بارگذاری ---------- */
   ui.emptyState = ({ icon = 'link_off', title, text, action = '' }) =>
     `<div class="state"><div class="state-icon"><span class="icon">${icon}</span></div><h3>${esc(title)}</h3><p class="muted">${esc(text)}</p>${action}</div>`;
 
@@ -263,7 +247,6 @@
       '<div class="skeleton-row"><div class="skeleton" style="width:2.2rem;height:2.2rem"></div><div class="grow"><div class="skeleton" style="width:40%;height:.9rem"></div><div class="skeleton" style="width:25%;height:.7rem;margin-top:.5rem"></div></div><div class="skeleton" style="width:4rem;height:1.2rem"></div></div>'
     ).join('')}</div>`;
 
-  /* ---------- صفحه‌بندی ---------- */
   ui.pager = (mount, { page, pages, total, pageSize, noun = 'مورد', onChange }) => {
     const from = total ? (page - 1) * pageSize + 1 : 0;
     const to = Math.min(total, page * pageSize);
@@ -286,7 +269,6 @@
     };
   };
 
-  /* ---------- نمایش/مخفی کردن رمز عبور ---------- */
   ui.wirePasswordToggles = (root = document) => {
     root.querySelectorAll('[data-toggle-password]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -300,10 +282,8 @@
     });
   };
 
-  /* ---------- نمایش وضعیت لینک به‌صورت نشان ---------- */
   ui.statusBadge = (status) => `<span class="badge badge-${status}">${esc(LP.data.STATUS_LABEL[status])}</span>`;
 
-  // نمایش درصد تغییر (مثلاً +۱۸٫۴٪)
   ui.delta = (v) => {
     if (v == null) return '<span class="delta delta-flat">—</span>';
     const up = v > 0.05, down = v < -0.05;

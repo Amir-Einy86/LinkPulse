@@ -1,17 +1,8 @@
-/* =========================================================
-   charts.js — نمودارهای SVG بدون هیچ کتابخونه‌ی بیرونی
-   line:   نمودار خطی با tooltip
-   donut:  نمودار دایره‌ای
-   spark:  نمودار کوچیک داخل ردیف‌ها
-   نکته: چون سایت راست‌به‌چپه، قدیمی‌ترین نقطه سمت راست و
-   جدیدترین نقطه سمت چپ قرار می‌گیره.
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
   const esc = LP.esc;
   const charts = (LP.charts = {});
-  // رنگ‌ها مستقیم از متغیرهای CSS (base.css) خونده می‌شن تا همیشه با ظاهر سایت یکی باشن
   const css = getComputedStyle(document.documentElement);
   const v = (name, fallback) => (css.getPropertyValue(name) || '').trim() || fallback;
   charts.colors = {
@@ -25,12 +16,10 @@
     track: v('--paper-sunk', '#ede8de'),
     paper: v('--raised', '#fbf9f4'),
   };
-  // رنگ‌های سری برای نمودار دایره‌ای: تأکید، جوهر، و دو خاکستری گرم
   charts.series = [charts.colors.primary, charts.colors.secondary, charts.colors.outline, v('--paper-deep', '#e4ddd0')];
 
   let uid = 0;
 
-  // مسیر نرم (منحنی) از بین نقطه‌ها
   function smoothPath(pts, minY, maxY) {
     if (pts.length < 2) return '';
     const clamp = (y) => Math.min(maxY, Math.max(minY, y));
@@ -44,7 +33,6 @@
     return d;
   }
 
-  // بالاترین عدد «قشنگ» برای محور عمودی
   function niceMax(v) {
     if (v <= 4) return 4;
     const p = Math.pow(10, Math.floor(Math.log10(v)));
@@ -53,7 +41,6 @@
     return step * p;
   }
 
-  /* ---------- نمودار خطی ---------- */
   charts.line = (mount, { labels, tips, values, unit = 'کلیک', color = charts.colors.primary, ariaLabel = 'نمودار کلیک‌ها' }) => {
     const W = 700, H = 260, PX = 14, PT = 18, PB = 12;
     const id = ++uid;
@@ -62,7 +49,7 @@
     const max = niceMax(Math.max(...values, 1));
     const innerW = W - 2 * PX, innerH = H - PT - PB;
     const pts = values.map((v, i) => ({
-      x: n === 1 ? W / 2 : W - PX - (i * innerW) / (n - 1), // ایندکس ۰ = قدیمی‌ترین = سمت راست
+      x: n === 1 ? W / 2 : W - PX - (i * innerW) / (n - 1),
       y: PT + innerH - (v / max) * innerH,
     }));
     const line = smoothPath(pts, PT, H - PB);
@@ -72,7 +59,6 @@
       return `<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="${charts.colors.line}" stroke-opacity="${k === 4 ? 1 : 0.55}" ${k === 4 ? '' : 'stroke-dasharray="2 5"'}/>`;
     }).join('');
 
-    // برچسب‌های محور افقی (حداکثر ۷ تا)
     const tickCount = Math.min(n, 7);
     const tickIdx = [];
     for (let k = 0; k < tickCount; k++) tickIdx.push(tickCount === 1 ? 0 : Math.round((k * (n - 1)) / (tickCount - 1)));
@@ -106,7 +92,6 @@
       dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('opacity', 1);
       tip.hidden = false;
       tip.innerHTML = `<small>${esc((tips && tips[i]) || labels[i])}</small><strong>${LP.fa(values[i])} ${esc(unit)}</strong>`;
-      // موقعیت tooltip بر حسب درصد، تا با تغییر اندازه‌ی نمودار هم درست بمونه
       const left = Math.min(88, Math.max(12, (p.x / W) * 100));
       tip.style.left = left + '%';
       tip.style.top = (p.y / H) * 100 + '%';
@@ -126,7 +111,6 @@
     box.addEventListener('pointerleave', hide);
   };
 
-  /* ---------- نمودار دایره‌ای ---------- */
   charts.donut = (mount, { items, centerValue, centerLabel, ariaLabel = 'نمودار دایره‌ای' }) => {
     const R = 38, C = 2 * Math.PI * R;
     const total = items.reduce((a, b) => a + b.value, 0);
@@ -149,7 +133,6 @@
       </div>`;
   };
 
-  /* ---------- نمودار کوچیک (Sparkline) ---------- */
   charts.spark = (values, color = charts.colors.secondary, w = 80, h = 22) => {
     const max = Math.max(...values, 1);
     const pad = 2;

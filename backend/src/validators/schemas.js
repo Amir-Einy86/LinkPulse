@@ -1,15 +1,9 @@
-/* =========================================================
-   schemas.js — قانون‌های اعتبارسنجی ورودی با Zod
-   هر درخواستی که از بیرون میاد «غیرقابل اعتماده». قبل از رسیدن به کنترلر،
-   شکل و مقدارش رو اینجا چک می‌کنیم. پیام‌ها فارسی‌ان چون مستقیم توی فرم‌ها نمایش داده می‌شن.
-   ========================================================= */
 const { z } = require('zod');
 const { normalizeUrl } = require('../utils/url');
 const { SLUG_RE, isReserved } = require('../utils/slug');
 
 const msg = (m) => ({ message: m });
 
-/* ---------- قطعه‌های قابل استفاده‌ی دوباره ---------- */
 const name = z.string(msg('اسم رو وارد کن.')).trim().min(2, 'اسم باید حداقل ۲ حرف باشه.').max(60, 'اسم نباید از ۶۰ حرف بیشتر باشه.');
 const email = z.string(msg('ایمیل رو وارد کن.')).trim().toLowerCase().max(254, 'ایمیل خیلی بلنده.').regex(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, 'این ایمیل درست به نظر نمی‌رسه.');
 const password = z.string(msg('رمز عبور رو وارد کن.')).min(8, 'رمز باید حداقل ۸ کاراکتر باشه.').max(128, 'رمز نباید از ۱۲۸ کاراکتر بیشتر باشه.');
@@ -26,7 +20,6 @@ const slug = z.string(msg('slug باید متن باشه.')).trim().toLowerCase(
 
 const title = z.string().trim().max(120, 'عنوان نباید از ۱۲۰ حرف بیشتر باشه.');
 
-// تاریخ انقضا: null (بدون انقضا) یا یه تاریخ ISO در آینده
 const expiresAt = z.union([z.null(), z.string().datetime({ message: 'تاریخ انقضا معتبر نیست.' })])
   .transform((v) => (v ? new Date(v) : null))
   .refine((d) => d === null || d.getTime() > Date.now(), 'تاریخ انقضا باید در آینده باشه.');
@@ -34,7 +27,6 @@ const expiresAt = z.union([z.null(), z.string().datetime({ message: 'تاریخ 
 const objectId = z.string(msg('شناسه معتبر نیست.')).regex(/^[a-f0-9]{24}$/i, 'شناسه معتبر نیست.');
 const tz = z.string().max(64).refine((v) => { try { new Intl.DateTimeFormat('en', { timeZone: v }); return true; } catch (e) { return false; } }, 'منطقه‌ی زمانی معتبر نیست.');
 
-/* ---------- احراز هویت و کاربر ---------- */
 const register = z.object({ name, email, password });
 const login = z.object({ email, password: z.string(msg('رمز عبور رو وارد کن.')).min(1, 'رمز عبور رو وارد کن.').max(128) });
 
@@ -64,7 +56,6 @@ const changePassword = z.object({
 
 const deleteAccount = z.object({ password: z.string(msg('رمز عبور رو وارد کن.')).min(1, 'رمز عبور رو وارد کن.').max(128) });
 
-/* ---------- لینک‌ها ---------- */
 const createLink = z.object({
   url,
   title: title.optional(),
@@ -92,7 +83,6 @@ const bulkDelete = z.object({ ids: z.array(objectId).min(1, 'هیچ لینکی �
 const checkSlug = z.object({ slug: z.string().trim().toLowerCase().max(64), exceptId: objectId.optional() });
 const idParam = z.object({ id: objectId });
 
-/* ---------- آمار ---------- */
 const linkAnalytics = z.object({ range: z.enum(['24h', '7d', '30d', 'all']).default('7d'), tz: tz.default('UTC') });
 const overview = z.object({ days: z.coerce.number().int().refine((n) => n === 7 || n === 30, 'days باید ۷ یا ۳۰ باشه.').default(7), tz: tz.default('UTC') });
 

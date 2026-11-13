@@ -1,9 +1,3 @@
-/* =========================================================
-   timeBuckets.js — ساخت «سطل‌های زمانی» (روز/ساعت) برای نمودارها
-   روزها بر اساس منطقه‌ی زمانی کاربر حساب می‌شن (مثلاً Asia/Tehran)، نه UTC؛
-   وگرنه کلیک ساعت ۲ بامداد ایران توی «دیروز» می‌افتاد.
-   کلیدها رشته‌ان: «2026-10-30» برای روز و «2026-10-30T14» برای ساعت.
-   ========================================================= */
 const pad = (n) => String(n).padStart(2, '0');
 
 function localParts(date, tz) {
@@ -18,7 +12,6 @@ function localParts(date, tz) {
 const dayKeyOf = (date, tz) => { const p = localParts(date, tz); return `${p.year}-${p.month}-${p.day}`; };
 const hourKeyOf = (date, tz) => { const p = localParts(date, tz); return `${p.year}-${p.month}-${p.day}T${p.hour}`; };
 
-// جمع/تفریق روز روی «رشته‌ی تاریخ» (بدون دردسر ساعت تابستانی)
 function addDays(key, n) {
   const d = new Date(`${key}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
@@ -26,7 +19,6 @@ function addDays(key, n) {
 }
 const diffDays = (a, b) => Math.round((new Date(`${b}T00:00:00Z`) - new Date(`${a}T00:00:00Z`)) / 864e5);
 
-// لیست N کلید روز منتهی به امروز (قدیمی‌ترین اول)
 function lastDayKeys(n, tz, now = new Date()) {
   const today = dayKeyOf(now, tz);
   return Array.from({ length: n }, (_, i) => addDays(today, i - (n - 1)));
@@ -41,7 +33,6 @@ function lastHourKeys(n, tz, now = new Date()) {
   return keys;
 }
 
-// عبارت Mongo برای ساخت کلید از فیلد at
 const mongoKey = (unit, tz) => ({
   $dateToString: { date: '$at', timezone: tz, format: unit === 'hour' ? '%Y-%m-%dT%H' : '%Y-%m-%d' },
 });

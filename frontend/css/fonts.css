@@ -1,11 +1,5 @@
 @charset "UTF-8";
-/* =========================================================
-   fonts.css — فونت‌ها از داخل خود پروژه (assets/fonts) لود می‌شن.
-   Google Fonts توی ایران همیشه در دسترس نیست؛ اگه لود نشه،
-   فونت‌ها به Tahoma برمی‌گردن و آیکون‌ها به‌شکل مربع خالی دیده می‌شن.
-   ========================================================= */
 
-/* متن اصلی: وزیرمتن (متغیر، همه‌ی وزن‌ها در یک فایل) */
 @font-face {
   font-family: 'Vazirmatn';
   src: url('../assets/fonts/Vazirmatn-wght.woff2') format('woff2');
@@ -14,7 +8,6 @@
   font-display: swap;
 }
 
-/* تیترها: مرکزی (Markazi Text) */
 @font-face {
   font-family: 'Markazi Text';
   src: url('../assets/fonts/markazi-arabic-500.woff2') format('woff2');
@@ -44,7 +37,6 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+2215;
 }
 
-/* آدرس‌ها و کدها */
 @font-face {
   font-family: 'JetBrains Mono';
   src: url('../assets/fonts/jetbrains-mono-400.woff2') format('woff2');
@@ -58,7 +50,6 @@
   font-display: swap;
 }
 
-/* آیکون‌ها (فونت متغیر: وزن، پرشدگی، اندازه‌ی نوری) */
 @font-face {
   font-family: 'Material Symbols Outlined';
   src: url('../assets/fonts/material-symbols-outlined.woff2') format('woff2');

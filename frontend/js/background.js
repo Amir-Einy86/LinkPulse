@@ -1,39 +1,29 @@
-/* =========================================================
-   background.js — پس‌زمینه‌ی زنده: خط‌های کم‌رنگ دفتر + موج «پالس»
-   روی هر بخشی که توی TARGETS اومده یه <canvas> پشت محتوا می‌سازه.
-   هر چند ثانیه یه موج به شکل لوگو از راست به چپ روی یکی از خط‌ها رد می‌شه؛
-   انگار یه کلیک ثبت شده.
-   ========================================================= */
 (function () {
   'use strict';
 
-  // کجا پس‌زمینه داشته باشیم؟  broken = موج وسط راه قطع می‌شه (برای ۴۰۴)
   const TARGETS = [
     { selector: '.hero', broken: false },
     { selector: '.auth-aside', broken: false },
     { selector: '.nf-main', broken: true },
   ];
 
-  // تنظیمات ظاهری (برای کم و زیاد کردن شدت، همین‌ها رو عوض کن)
   const CONFIG = {
-    lineGap: 42,          // فاصله‌ی خط‌ها (پیکسل)
-    lineAlpha: 0.05,      // پررنگی خط‌ها (۰ تا ۱)
-    pulseAlpha: 0.55,     // پررنگی موج
-    pulseWidth: 96,       // پهنای شکل موج
-    pulseHeight: 15,      // ارتفاع موج
-    trail: 280,           // طول دنباله‌ی پشت موج
-    speed: 150,           // سرعت (پیکسل در ثانیه)
-    every: 2.2,           // هر چند ثانیه یه موج جدید
-    maxPulses: 3,         // حداکثر موج هم‌زمان
+    lineGap: 42,
+    lineAlpha: 0.05,
+    pulseAlpha: 0.55,
+    pulseWidth: 96,
+    pulseHeight: 15,
+    trail: 280,
+    speed: 150,
+    every: 2.2,
+    maxPulses: 3,
   };
   const MOBILE = { lineGap: 50, every: 3.4, maxPulses: 2 };
 
-  // شکل موج = همون خط لوگو، به‌صورت نقطه‌های نرمال‌شده (x از ۰ تا ۱، y از -۱ تا ۱)
   const WAVE = [[0, 0], [0.21, 0], [0.36, -0.58], [0.6, 0.42], [0.76, -0.29], [0.83, 0], [1, 0]];
 
   const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // رنگ‌ها از متغیرهای CSS
   function rgb(name, fallback) {
     const hex = (getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim() || fallback;
     const n = parseInt(hex.replace('#', ''), 16);
@@ -55,7 +45,6 @@
     let pulses = [], spawnIn = 0.4, last = 0, raf = 0;
     let onScreen = true;
 
-    // اندازه‌ی واقعی کانواس با توجه به وضوح صفحه (devicePixelRatio)
     function resize() {
       const r = canvas.getBoundingClientRect();
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -80,7 +69,6 @@
       pulses.push({ x: x == null ? w + 20 : x, y: ys[Math.floor(Math.random() * ys.length)] });
     }
 
-    // قطع شدن موج برای ۴۰۴: وقتی از وسط صفحه رد شد، کم‌کم محو و صاف می‌شه
     function fadeAt(x) {
       if (!broken) return 1;
       const t = (x - w * 0.38) / (w * 0.18);
@@ -121,7 +109,7 @@
 
     function frame(now) {
       raf = 0;
-      const dt = Math.min(0.05, (now - (last || now)) / 1000); // حداکثر ۵۰ms، تا بعد از برگشت به تب پرش نکنه
+      const dt = Math.min(0.05, (now - (last || now)) / 1000);
       last = now;
       spawnIn -= dt;
       if (spawnIn <= 0 && pulses.length < opts.maxPulses) {
@@ -134,7 +122,6 @@
       start();
     }
 
-    // فقط وقتی کانواس توی صفحه‌ست و تب باز و فعاله، انیمیشن اجرا می‌شه
     function start() {
       if (!raf && onScreen && !document.hidden && !reduced()) raf = requestAnimationFrame(frame);
     }
@@ -146,7 +133,6 @@
 
     resize();
     if (reduced()) {
-      // «حرکت کمتر»: یه تصویر ثابت با یه موج وسط صفحه
       pulses = [];
       spawn(w * 0.55);
       draw();

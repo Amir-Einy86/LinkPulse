@@ -8,7 +8,6 @@ afterAll(stopDb);
 beforeEach(clearDb);
 
 const H = 3600e3, D = 864e5;
-// کلیک مستقیم توی دیتابیس می‌سازیم تا زمانش دست خودمون باشه
 async function addClicks(link, user, specs) {
   const docs = specs.flatMap(([ageMs, n, extra = {}]) =>
     Array.from({ length: n }, (_, i) => ({ link: link.id, owner: user.user.id, at: new Date(Date.now() - ageMs), visitor: `v${i}`, ...extra })));
@@ -28,7 +27,6 @@ describe('آمار یک لینک', () => {
     expect(series.unit).toBe('day');
     expect(series.total).toBe(9);
     expect(series.points.filter((p) => p.value === 0).length).toBeGreaterThanOrEqual(3);
-    // کلیدها پشت‌سرهم و قدیمی‌ترین اول
     const keys = series.points.map((p) => p.from);
     expect([...keys].sort()).toEqual(keys);
   });
@@ -50,7 +48,6 @@ describe('آمار یک لینک', () => {
     const u = await registerUser();
     const fresh = await createLink(u.auth);
     const old = await createLink(u.auth);
-    // createdAt در Mongoose تغییرناپذیره؛ پس مستقیم روی کالکشن می‌نویسیم
     await Link.collection.updateOne({ _id: new (require('mongoose').Types.ObjectId)(old.id) }, { $set: { createdAt: new Date(Date.now() - 60 * D) } });
     await addClicks(old, u, [[50 * D, 3], [2 * D, 4]]);
     const a = (await api().get(`/api/links/${fresh.id}/analytics`).query({ range: 'all' }).set(u.auth)).body.data;
@@ -82,8 +79,8 @@ describe('آمار یک لینک', () => {
     await addClicks(link, u, [[2 * H, 6, { source: 'social' }], [3 * D, 2, { source: 'direct' }], [10 * D, 5, { source: 'direct' }]]);
     const { kpis } = (await api().get(`/api/links/${link.id}/analytics`).query({ range: '7d' }).set(u.auth)).body.data;
     expect(kpis.totalClicks).toBe(13);
-    expect(kpis.trend).toBeCloseTo(60, 5); // ۸ کلیک این هفته در برابر ۵ کلیک هفته‌ی قبل
-    expect(kpis.uniqueVisitors).toBe(6);    // visitorها v0 تا v5 هستن (دسته‌ها از v0 شروع می‌شن)
+    expect(kpis.trend).toBeCloseTo(60, 5);
+    expect(kpis.uniqueVisitors).toBe(6);
     expect(kpis.topSource.key).toBe('direct');
     expect(kpis.avgDaily7).toBeCloseTo(8 / 7, 5);
     expect(kpis.peak7.value).toBe(6);
@@ -102,12 +99,10 @@ describe('آمار یک لینک', () => {
   test('منطقه‌ی زمانی: کلیک ساعت ۰۰:۳۰ به‌وقت تهران، توی «روز تهران» حساب می‌شه نه UTC', async () => {
     const u = await registerUser();
     const link = await createLink(u.auth);
-    // ۲۰:۴۵ UTC دیروز = ۰۰:۱۵ بامداد امروز تهران (UTC+3:30)
     const todayTehran = T.dayKeyOf(new Date(), 'Asia/Tehran');
     const at = new Date(`${todayTehran}T00:15:00+03:30`);
     await Click.create({ link: link.id, owner: u.user.id, at });
     await Link.updateOne({ _id: link.id }, { clicks: 1 });
-    // این تست فقط وقتی معنی داره که این کلیک توی گذشته باشه (وگرنه فردا معتبر می‌شه)
     if (at.getTime() > Date.now()) return;
     const tehran = (await api().get(`/api/links/${link.id}/analytics`).query({ range: '7d', tz: 'Asia/Tehran' }).set(u.auth)).body.data;
     const last = tehran.series.points[tehran.series.points.length - 1];
@@ -148,8 +143,8 @@ describe('نمای کلی داشبورد', () => {
     expect(res.status).toBe(200);
     const d = res.body.data;
     expect(d.series.points).toHaveLength(7);
-    expect(d.series.total).toBe(10);          // ۶ + ۴ (آرشیو حساب نمی‌شه)
-    expect(d.series.prevTotal).toBe(2);       // ۱۰ روز پیش
+    expect(d.series.total).toBe(10);
+    expect(d.series.prevTotal).toBe(2);
     expect(d.series.change).toBeCloseTo(400, 5);
     expect(d.summary).toMatchObject({ total: 3, archived: 1, active: 2 });
     expect(d.topLinks).toHaveLength(2);

@@ -1,7 +1,3 @@
-/* =========================================================
-   link-details.js — صفحه‌ی آمار و تحلیل یک لینک
-   آدرس: link-details.html?id=...   (اگه id نباشه، پرکلیک‌ترین لینک نشون داده می‌شه)
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -24,11 +20,10 @@
 
   let link = null;
   let range = '7d';
-  let all = [];        // لینک‌ها برای انتخاب‌گر بالای صفحه
-  let stats = null;    // آخرین پاسخ آمار
+  let all = [];
+  let stats = null;
   let seq = 0;
 
-  /* ---------- حالت‌های خاص ---------- */
   function renderLoading() {
     root.innerHTML = '<div class="card">' + LP.ui.skeletonRows(6) + '</div>';
   }
@@ -54,13 +49,11 @@
     if (r) r.addEventListener('click', () => renderPage());
   }
 
-  /* ---------- بدنه‌ی اصلی صفحه ---------- */
   async function renderPage() {
     const mine = ++seq;
     renderLoading();
     let res;
     try {
-      // لینک انتخاب‌شده (یا پرکلیک‌ترین) + لیست برای انتخاب‌گر
       const listRes = await LP.data.list({ sort: 'clicks', limit: 50 });
       all = listRes.links;
       const id = LP.query('id');
@@ -167,7 +160,6 @@
     wire();
   }
 
-  // فقط بخش‌های وابسته به بازه (نمودار و تفکیک‌ها) دوباره ساخته می‌شن
   async function changeRange(next) {
     range = next;
     root.querySelectorAll('[data-range]').forEach((x) => { const on = x.dataset.range === range; x.classList.toggle('is-active', on); x.setAttribute('aria-selected', String(on)); });
@@ -210,14 +202,12 @@
     const b = stats.breakdowns;
     const total = b.total;
 
-    // منبع بازدید
     const items = b.sources.map((s, i) => Object.assign({}, s, { color: SOURCE_COLORS[i % 4] }));
     LP.charts.donut($('#sourceDonut'), { items, centerValue: LP.fa(total), centerLabel: 'کل کلیک', ariaLabel: 'نمودار منبع بازدید' });
     $('#sourceLegend').innerHTML = items.map((s) => `
       <div class="legend-row"><span class="row gap-2"><i class="swatch" style="background:${s.color}"></i>${esc(s.label)}</span>
       <span class="row gap-3 small"><span class="dim">${LP.fa(s.value)}</span><b>${LP.pct(s.pct)}</b></span></div>`).join('');
 
-    // دستگاه‌ها
     $('#deviceBars').innerHTML = b.devices.map((d) => {
       const st = DEVICE_STYLE[d.label] || DEVICE_STYLE['دسکتاپ'];
       return `<div class="bar-item"><div class="row between"><span class="row gap-2"><span class="icon dim">${st.icon}</span>${esc(d.label)}</span><span class="row gap-2 small"><span class="dim">${LP.fa(d.value)}</span><b>${LP.pct(d.pct)}</b></span></div><div class="bar"><div class="bar-fill ${st.cls}" style="width:${d.pct.toFixed(1)}%"></div></div></div>`;
@@ -225,7 +215,6 @@
     const bt = b.browsers;
     $('#browserNote').textContent = total && bt.length ? `پرکاربردترین مرورگر: ${bt[0].label} (${LP.pct(bt[0].pct)})` : 'توی این بازه داده‌ای نیست';
 
-    // کشورها
     $('#countryList').innerHTML = b.countries.map((c) => `
       <div class="country">
         <span class="code ltr mono">${esc(c.code)}</span>
@@ -244,7 +233,6 @@
       : LP.ui.emptyState({ icon: 'ads_click', title: 'هنوز کلیکی ثبت نشده', text: 'لینکت رو جایی منتشر کن؛ به‌محض اولین کلیک، اینجا نشون داده می‌شه.' });
   }
 
-  /* ---------- رویدادها ---------- */
   function wire() {
     $('#linkPicker').addEventListener('change', (e) => LP.go('link-details.html?id=' + encodeURIComponent(e.target.value)));
 
@@ -283,7 +271,6 @@
     });
   }
 
-  // بعد از ویرایش/آرشیو، صفحه دوباره ساخته می‌شه (اگه لینک حذف شده باشه صفحه‌ی «پیدا نشد» میاد)
   document.addEventListener('lp:links-changed', () => { if (link) renderPage(); });
 
   LP.ready.then(renderPage);

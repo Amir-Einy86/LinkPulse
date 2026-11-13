@@ -113,7 +113,7 @@ describe('خوندن، ویرایش و حذف', () => {
     const list = await api().get('/api/links').set(b.auth);
     expect(list.body.data.links).toHaveLength(0);
     const still = await Link.findById(link.id);
-    expect(still.title).not.toBe('هک'); // لینک دست‌نخورده موند
+    expect(still.title).not.toBe('هک');
   });
 
   test('بدون ورود هیچ مسیر لینکی کار نمی‌کنه', async () => {
@@ -159,7 +159,6 @@ describe('خوندن، ویرایش و حذف', () => {
     expect((await api().delete(`/api/links/${l1.id}`).set(a.auth)).status).toBe(204);
     expect((await api().get(`/api/links/${l1.id}`).set(a.auth)).status).toBe(404);
 
-    // لینک کاربر دیگه توی لیست ids باشه، حذف نمی‌شه
     const bulk = await api().post('/api/links/bulk-delete').set(a.auth).send({ ids: [l2.id, other.id] });
     expect(bulk.status).toBe(200);
     expect(bulk.body.data.deleted).toBe(1);
@@ -183,7 +182,7 @@ describe('لیست: جستجو، فیلتر، مرتب‌سازی، صفحه‌�
     const d = await createLink(u.auth, { slug: 'delta-four', title: 'دلتا', url: 'https://example.com/delta' });
     await Link.updateOne({ _id: a.id }, { clicks: 50 });
     await Link.updateOne({ _id: b.id }, { clicks: 10, archived: true });
-    await Link.updateOne({ _id: d.id }, { $set: { expiresAt: new Date(Date.now() - 1000) } }); // منقضی‌شده (مستقیم توی دیتابیس)
+    await Link.updateOne({ _id: d.id }, { $set: { expiresAt: new Date(Date.now() - 1000) } });
     return { a, b, c, d };
   }
 
@@ -208,7 +207,7 @@ describe('لیست: جستجو، فیلتر، مرتب‌سازی، صفحه‌�
     expect((await q('بتا')).body.data.links).toHaveLength(1);
     const evil = await q('.*');
     expect(evil.status).toBe(200);
-    expect(evil.body.data.links).toHaveLength(0); // «.*» به‌عنوان متن جستجو می‌شه، نه الگوی regex
+    expect(evil.body.data.links).toHaveLength(0);
     expect((await q('(')).status).toBe(200);
   });
 
@@ -250,6 +249,6 @@ describe('ابزارها', () => {
     expect(res.headers['content-type']).toMatch(/text\/csv/);
     expect(res.text).toContain('عنوان');
     expect(res.text).not.toContain('csv-other');
-    expect(res.text).toContain(`"'=HYPERLINK(""http://evil.test"",""کلیک کن"")"`); // با ' خنثی شده
+    expect(res.text).toContain(`"'=HYPERLINK(""http://evil.test"",""کلیک کن"")"`);
   });
 });

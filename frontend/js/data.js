@@ -1,9 +1,3 @@
-/* =========================================================
-   data.js — «مخزن داده»: تنها جایی که با API حرف می‌زنه
-   صفحه‌ها هیچ‌وقت آدرس API یا ساختار پاسخ سرور رو نمی‌دونن؛ فقط LP.data رو صدا می‌زنن.
-   اینجا پاسخ‌های سرور به چیزی تبدیل می‌شن که صفحه‌ها راحت نمایش بدن
-   (برچسب فارسی، تاریخ شمسی و ...).
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -13,19 +7,17 @@
   const TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch (e) { return 'UTC'; } })();
   const changed = () => document.dispatchEvent(new CustomEvent('lp:links-changed'));
 
-  /* ---------- برچسب‌های فارسی ---------- */
   data.STATUS_LABEL = { active: 'فعال', expired: 'منقضی‌شده', archived: 'آرشیو' };
   const SOURCE_LABEL = { direct: 'مستقیم', search: 'موتور جستجو', social: 'شبکه‌های اجتماعی', other: 'سایر سایت‌ها' };
   const DEVICE_LABEL = { desktop: 'دسکتاپ', mobile: 'موبایل', tablet: 'تبلت' };
   const BROWSER_LABEL = { chrome: 'کروم', safari: 'سافاری', firefox: 'فایرفاکس', edge: 'اج', other: 'سایر' };
   let regionNames = null;
-  try { regionNames = new Intl.DisplayNames(['fa'], { type: 'region' }); } catch (e) { /* مرورگر قدیمی */ }
+  try { regionNames = new Intl.DisplayNames(['fa'], { type: 'region' }); } catch (e) {  }
   const countryName = (code) => {
     if (!code || code === 'XX') return 'نامشخص';
     try { return (regionNames && regionNames.of(code)) || code; } catch (e) { return code; }
   };
 
-  /* ---------- کاربر، پروفایل و تنظیمات ---------- */
   const DEFAULT_SETTINGS = { defaultExpiry: 'none', pageSize: 6, notifyMilestone: true, notifyExpiry: true, notifyNews: false };
   data.profile = () => LP.session.user || { name: '', email: '', username: '', bio: '', createdAt: new Date().toISOString() };
   data.settings = () => Object.assign({}, DEFAULT_SETTINGS, (LP.session.user && LP.session.user.settings) || {});
@@ -45,7 +37,7 @@
   };
   data.changePassword = async (currentPassword, newPassword) => {
     const res = await api.put('/users/me/password', { currentPassword, newPassword });
-    LP.session.start(res.data); // توکن تازه (توکن قبلی باطل شده)
+    LP.session.start(res.data);
   };
   data.deleteAccount = async (password) => {
     await api.delete('/users/me', { password });
@@ -53,7 +45,6 @@
     LP.session.user = null;
   };
 
-  /* ---------- کمک‌های نمایشی لینک ---------- */
   data.status = (l) => l.status;
   data.shortUrl = (l) => l.shortUrl;
   data.shortText = (l) => String(l.shortUrl || '').replace(/^https?:\/\//, '');
@@ -70,8 +61,6 @@
     return { icon: 'link', tone: 'primary' };
   };
 
-  /* ---------- لینک‌ها ---------- */
-  // query: { q, status, sort, page, limit }  →  { links, summary, meta }
   data.list = async (query) => {
     const res = await api.get('/links', { query });
     return { links: res.data.links, summary: res.data.summary, meta: res.meta };
@@ -92,18 +81,15 @@
   data.removeAll = async () => { const r = await api.delete('/links'); changed(); return r.data.deleted; };
   data.slugStatus = async (slug, exceptId) => (await api.get('/links/check-slug', { query: { slug, exceptId } })).data;
 
-  // دانلود CSV ساخته‌شده توسط سرور (با همون فیلترهای لیست)
   data.exportCsv = async (query) => {
     const res = await api.get('/links/export.csv', { query, raw: true });
     const text = await res.text();
     LP.download('linkpulse-links.csv', text.replace(/^﻿/, ''));
   };
 
-  /* ---------- آمار ---------- */
-  const dayDate = (key) => new Date(key + 'T12:00:00'); // ظهر؛ تا اختلاف ساعت، روز رو عوض نکنه
+  const dayDate = (key) => new Date(key + 'T12:00:00');
   const pad2 = (n) => String(n).padStart(2, '0');
 
-  // نقطه‌های سری زمانی سرور → برچسب فارسی برای نمودار
   function formatSeries(series) {
     const labels = [], tips = [], values = [];
     series.points.forEach((p) => {
@@ -171,8 +157,6 @@
     };
   };
 
-  /* ---------- اعلان‌ها ---------- */
-  // سرور اعلان‌ها رو از روی لینک‌ها می‌سازه؛ «خونده‌شده» بودن فقط توی همین مرورگر نگه‌داری می‌شه
   const notifText = (n) => {
     if (n.type === 'expiry') return `لینک «${n.title}» ${LP.fa(n.days)} روز دیگه منقضی می‌شه.`;
     return `لینک «${n.title}» از ${LP.fa(n.milestone)} کلیک گذشت.`;

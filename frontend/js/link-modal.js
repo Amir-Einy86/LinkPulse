@@ -1,11 +1,3 @@
-/* =========================================================
-   link-modal.js — پنجره‌ی «ساخت لینک» و «ویرایش لینک»
-   هر جا لازمش داشتی: LP.linkModal.open()            ← ساخت
-                       LP.linkModal.open({ link })    ← ویرایش
-   LP.linkModal.open({ url })     ← ساخت با آدرس از پیش پرشده
-   بعد از ذخیره، رویداد lp:links-changed ارسال می‌شه و صفحه‌ها
-   خودشون رو دوباره می‌کشن.
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -96,7 +88,6 @@
       if (finalSlug) {
         if (!LP.isValidSlug(finalSlug)) { LP.ui.setError(slug, 'اسلاگ باید ۳ تا ۳۲ کاراکتر و فقط شامل حروف انگلیسی، عدد، - و _ باشه.'); ok = false; }
         else if (LP.RESERVED_SLUGS.includes(finalSlug.toLowerCase())) { LP.ui.setError(slug, 'این اسلاگ رزرو شده؛ یکی دیگه انتخاب کن.'); ok = false; }
-        // تکراری بودن slug رو خود سرور (با ایندکس یکتای دیتابیس) تشخیص می‌ده
       }
 
       let expiresAt = null;
@@ -129,7 +120,6 @@
         showSuccess(await LP.data.create(payload));
       } catch (err) {
         LP.ui.busy(submit, false);
-        // خطای هر فیلد رو کنار همون فیلد نشون می‌دیم؛ بقیه‌ی خطاها به‌صورت پیام
         const fields = { url, title: titleEl, slug, expiresAt: expiry };
         const shown = Object.entries(err.details || {}).filter(([k]) => fields[k]);
         shown.forEach(([k, msg]) => LP.ui.setError(fields[k], msg));
@@ -138,7 +128,6 @@
       }
     });
 
-    // بعد از ساخت لینک: نمایش نتیجه به‌جای بستن ناگهانی پنجره
     function showSuccess(created) {
       m.el.querySelector('.modal-title').textContent = 'لینکت ساخته شد';
       m.body.innerHTML = `

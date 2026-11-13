@@ -1,7 +1,3 @@
-/* =========================================================
-   openapi.js — مستندات API به فرمت OpenAPI 3 (Swagger)
-   بعد از روشن کردن سرور، توی مرورگر باز کن:  /docs
-   ========================================================= */
 const ref = (n) => ({ $ref: `#/components/schemas/${n}` });
 const json = (schema, example) => ({ 'application/json': { schema, ...(example ? { example } : {}) } });
 const err = (description) => ({ description, content: json(ref('Error')) });

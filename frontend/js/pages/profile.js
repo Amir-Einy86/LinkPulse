@@ -1,6 +1,3 @@
-/* =========================================================
-   profile.js — صفحه‌ی پروفایل
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -9,7 +6,6 @@
   const form = $('#profileForm');
   let overview = { summary: { total: 0, clicks: 0, active: 0 }, links: [] };
 
-  /* ---------- کارت کناری ---------- */
   function renderCard() {
     const p = LP.data.profile();
     const s = overview.summary;
@@ -24,7 +20,6 @@
     $('#sActive').textContent = LP.fa(s.active);
   }
 
-  /* ---------- فعالیت اخیر (از روی لینک‌های ساخته‌شده) ---------- */
   function renderActivity() {
     const p = LP.data.profile();
     const items = overview.links.map((l) => ({
@@ -40,12 +35,11 @@
     try {
       const res = await LP.data.list({ sort: 'newest', limit: 5 });
       overview = { summary: res.summary, links: res.links };
-    } catch (err) { /* کارت با صفرها نشون داده می‌شه؛ خطای اصلی صفحه نیست */ }
+    } catch (err) {  }
     renderCard();
     renderActivity();
   }
 
-  /* ---------- فرم ---------- */
   function fillForm() {
     const p = LP.data.profile();
     $('#fName').value = p.name || '';

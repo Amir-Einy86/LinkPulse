@@ -1,10 +1,3 @@
-/* =========================================================
-   redirectController.js — باز کردن لینک کوتاه: GET /:slug
-   مهم‌ترین مسیر عمومی برنامه (بدون نیاز به ورود).
-   - فقط به آدرس‌هایی ریدایرکت می‌کنیم که موقع ساخت لینک اعتبارسنجی شدن (http/https).
-   - هیچ‌وقت خودمون به آدرس مقصد درخواست نمی‌زنیم.
-   - ریدایرکت ۳۰۲ (موقت) می‌دیم نه ۳۰۱؛ وگرنه مرورگر نتیجه رو کش می‌کنه و کلیک‌های بعدی دیده نمی‌شن.
-   ========================================================= */
 const path = require('path');
 const fs = require('fs');
 const Link = require('../models/Link');
@@ -23,7 +16,6 @@ function sendNotFoundPage(res, status, reason) {
   return res.type('text').send(reason);
 }
 
-// ثبت کلیک بعد از ارسال ریدایرکت (کاربر منتظر دیتابیس نمی‌مونه). خطاها فقط لاگ می‌شن.
 function recordClick(link, req) {
   Promise.all([
     Click.create({ link: link._id, owner: link.owner, ...fromRequest(req, selfHost) }),
@@ -33,7 +25,7 @@ function recordClick(link, req) {
 
 exports.redirect = asyncHandler(async (req, res, next) => {
   const slug = String(req.params.slug || '').toLowerCase();
-  if (!SLUG_RE.test(slug)) return next(); // چیزی شبیه slug نیست؛ بره سراغ ۴۰۴ عادی
+  if (!SLUG_RE.test(slug)) return next();
 
   const link = await Link.findOne({ slug }).select('url owner archived expiresAt').lean();
   if (!link) return sendNotFoundPage(res, 404, 'لینک پیدا نشد.');

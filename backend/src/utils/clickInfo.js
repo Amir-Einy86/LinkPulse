@@ -1,7 +1,3 @@
-/* =========================================================
-   clickInfo.js — از درخواست ریدایرکت، اطلاعات تحلیلی بی‌هویت درمیاره.
-   بدون هیچ درخواست بیرونی و بدون ذخیره‌ی IP.
-   ========================================================= */
 const SEARCH = /(^|\.)(google|bing|yahoo|duckduckgo|yandex|baidu)\./i;
 const SOCIAL = /(^|\.)(t\.me|telegram|instagram|facebook|fb|x\.com|twitter|linkedin|reddit|whatsapp|youtube|pinterest|tiktok|eitaa|rubika|aparat)\b/i;
 
@@ -28,7 +24,6 @@ function parseUserAgent(ua = '') {
   return { device, browser };
 }
 
-// کشور رو فقط از هدرهای میزبان‌های ابری (Cloudflare, Vercel) می‌خونیم؛ هیچ جستجوی IP انجام نمی‌دیم
 function parseCountry(headers) {
   const c = headers['cf-ipcountry'] || headers['x-vercel-ip-country'] || headers['x-country-code'] || '';
   return /^[A-Za-z]{2}$/.test(c) && c.toUpperCase() !== 'T1' ? c.toUpperCase() : 'XX';
@@ -37,7 +32,6 @@ function parseCountry(headers) {
 const crypto = require('crypto');
 const env = require('../config/env');
 
-// هش یک‌طرفه‌ی روزانه برای شمردن بازدیدکننده‌ی یکتا (IP خام هیچ‌جا ذخیره نمی‌شه)
 function visitorHash(req) {
   const day = new Date().toISOString().slice(0, 10);
   return crypto.createHmac('sha256', env.jwtSecret || 'test-secret')

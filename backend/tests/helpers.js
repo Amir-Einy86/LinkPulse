@@ -1,4 +1,3 @@
-/* helpers.js — کمک‌های مشترک تست‌ها: دیتابیس موقت در حافظه + ساخت کاربر */
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-secret-test-secret-test-secret-123456';
 process.env.BASE_URL = 'https://lp.example.test';
@@ -15,7 +14,6 @@ let counter = 0;
 async function startDb() {
   mongod = await MongoMemoryServer.create();
   await mongoose.connect(mongod.getUri());
-  // ایندکس‌های یکتا باید قبل از تست ساخته شده باشن
   await Promise.all(Object.values(mongoose.models).map((m) => m.init()));
 }
 async function stopDb() {
@@ -46,7 +44,6 @@ async function createLink(auth, body = {}) {
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-// صبر می‌کنیم تا یه شرط (مثلاً ثبت کلیک در پس‌زمینه) درست بشه
 async function waitFor(fn, { tries = 40, ms = 50 } = {}) {
   for (let i = 0; i < tries; i++) { const v = await fn(); if (v) return v; await wait(ms); }
   return fn();

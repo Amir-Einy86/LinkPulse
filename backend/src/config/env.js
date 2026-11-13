@@ -1,8 +1,3 @@
-/* =========================================================
-   env.js — خوندن و بررسی متغیرهای محیطی (Environment Variables)
-   همه‌ی تنظیمات و رازها از فایل .env میان، نه از توی کد.
-   اگه چیز مهمی کم باشه، همون اول اجرا با پیام واضح متوقف می‌شیم.
-   ========================================================= */
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env'), quiet: true });
 
@@ -30,7 +25,6 @@ const env = {
     : path.join(__dirname, '..', '..', '..', 'frontend'),
 };
 
-// در تست‌ها خودمون مقدار می‌دیم؛ در بقیه‌ی حالت‌ها اجباریه
 if (!isTest) {
   const missing = [];
   if (!env.mongoUri) missing.push('MONGODB_URI');

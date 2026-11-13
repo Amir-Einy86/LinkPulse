@@ -1,10 +1,3 @@
-/* =========================================================
-   layout.js — ساخت «قاب» صفحه‌های داخل پنل (منوی کناری + نوار بالا)
-   به‌جای اینکه توی ۵ فایل HTML یه منو رو کپی کنیم، یک‌بار اینجا
-   ساخته می‌شه. هر صفحه فقط باید این‌ها رو داشته باشه:
-     <body data-shell="app" data-page="dashboard" data-title="داشبورد">
-     <main id="main" class="page"> ... </main>
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -121,7 +114,6 @@
     topbar.querySelector('#menuBtn').addEventListener('click', () => toggleMenu());
   }
 
-  /* ---------- باز و بسته شدن منو در موبایل ---------- */
   function toggleMenu(force) {
     const open = force !== undefined ? force : !sidebar.classList.contains('is-open');
     sidebar.classList.toggle('is-open', open);
@@ -133,7 +125,6 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggleMenu(false); });
   window.addEventListener('resize', () => { if (window.innerWidth > 1023) toggleMenu(false); });
 
-  /* ---------- سوار کردن همه‌چیز روی صفحه (بعد از آماده شدن کاربر) ---------- */
   function mount() {
     renderSidebar();
     renderTopbar();

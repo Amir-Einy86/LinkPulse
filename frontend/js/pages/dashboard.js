@@ -1,7 +1,3 @@
-/* =========================================================
-   dashboard.js — منطق صفحه‌ی داشبورد
-   داده‌ها از سرور میان: /analytics/overview و /links
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -9,11 +5,10 @@
   const esc = LP.esc;
 
   const state = { days: 7, q: '', status: 'all' };
-  let overview = null;   // آخرین پاسخ نمای کلی
-  let recent = [];       // لینک‌های جدول
-  let loadSeq = 0;       // برای نادیده گرفتن پاسخ‌های قدیمی (وقتی کاربر سریع فیلتر عوض می‌کنه)
+  let overview = null;
+  let recent = [];
+  let loadSeq = 0;
 
-  /* ---------- سلام ---------- */
   function renderGreeting() {
     const p = LP.data.profile();
     const { summary, agg } = overview;
@@ -23,7 +18,6 @@
       : 'هنوز لینکی نساختی. اولین لینکت رو بساز و آمارش رو ببین.';
   }
 
-  /* ---------- کارت‌های آمار ---------- */
   function renderKpis() {
     const { summary: s, agg } = overview;
     $('#kpiLinks').textContent = LP.fa(s.total);
@@ -36,7 +30,6 @@
     $('#kpiActiveNote').innerHTML = `<span class="dim">${LP.fa(s.expired)} منقضی‌شده · ${LP.fa(s.archived)} آرشیو</span>`;
   }
 
-  /* ---------- نمودار ---------- */
   function renderChart() {
     const { agg } = overview;
     LP.charts.line($('#clicksChart'), { labels: agg.labels, tips: agg.tips, values: agg.values, ariaLabel: `نمودار کلیک‌های ${LP.fa(state.days)} روز گذشته` });
@@ -44,7 +37,6 @@
     $('#peakBadge').innerHTML = max > 0 ? `<span class="icon">trending_up</span>اوج: ${LP.fa(max)} کلیک در یک روز` : 'هنوز کلیکی ثبت نشده';
   }
 
-  /* ---------- پرکلیک‌ترین‌ها (بر اساس کل کلیک‌ها؛ نمودار کوچک: ۷ روز اخیر) ---------- */
   function renderTop() {
     const ranked = overview.topLinks.filter((l) => l.clicks > 0);
     $('#topLinks').innerHTML = ranked.length
@@ -60,7 +52,6 @@
       : '<p class="dim small top-empty">هنوز لینکی کلیک نگرفته.</p>';
   }
 
-  /* ---------- جدول آخرین لینک‌ها ---------- */
   function recentRow(l) {
     const ic = LP.data.iconFor(l.url);
     return `
@@ -111,7 +102,6 @@
       </div>`;
   }
 
-  /* ---------- دریافت داده‌ها ---------- */
   async function fetchRecent() {
     const res = await LP.data.list({ q: state.q.trim(), status: state.status, sort: 'newest', limit: 5 });
     recent = res.links;
@@ -145,7 +135,6 @@
     }
   }
 
-  /* ---------- رویدادها ---------- */
   $('#createBtn').addEventListener('click', () => LP.linkModal.open());
   $('#rangeSelect').addEventListener('change', (e) => { state.days = Number(e.target.value); loadAll(); });
   $('#statusSelect').addEventListener('change', (e) => { state.status = e.target.value; loadRecentOnly(); });
@@ -176,11 +165,9 @@
     if (btn.dataset.action === 'edit') LP.linkModal.open({ link });
   });
 
-  // هر وقت لینکی ساخته/ویرایش/حذف شد، صفحه خودش رو دوباره می‌کشه
   document.addEventListener('lp:links-changed', loadAll);
 
   LP.ready.then(() => {
-    // اگه کاربر از صفحه‌ی اصلی با یه آدرس اومده، پنجره‌ی ساخت لینک با همون آدرس باز می‌شه
     const pending = LP.store.get('pending-url', null);
     if (pending) { LP.store.remove('pending-url'); LP.linkModal.open({ url: pending }); }
     loadAll();

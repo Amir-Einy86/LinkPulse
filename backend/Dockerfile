@@ -1,4 +1,3 @@
-# ایمیج سبک برای اجرای لینک‌پالس (بک‌اند + فرانت‌اند ثابت)
 FROM node:22-alpine
 WORKDIR /app/backend
 COPY backend/package*.json ./

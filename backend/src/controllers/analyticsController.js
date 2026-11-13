@@ -1,8 +1,3 @@
-/* =========================================================
-   analyticsController.js — آمار کلیک
-   همه‌ی محاسبه‌ها توی خود MongoDB با «Aggregation Pipeline» انجام می‌شن (نه با آوردن همه‌ی
-   کلیک‌ها به حافظه)؛ یعنی هر ساختار داده‌ای که می‌بینی نتیجه‌ی $match و $group هست.
-   ========================================================= */
 const Link = require('../models/Link');
 const Click = require('../models/Click');
 const User = require('../models/User');
@@ -15,7 +10,6 @@ const { summarize } = require('./linkController');
 const sum = (a) => a.reduce((x, y) => x + y, 0);
 const pct = (v, total) => (total ? (v / total) * 100 : 0);
 
-// شمارش هر کلید (روز/ساعت) روی یه $match پایه → { key: count }
 async function countByKey(match, unit, tz, keys) {
   const rows = await Click.aggregate([
     { $match: match },
@@ -28,7 +22,6 @@ async function countByKey(match, unit, tz, keys) {
   return map;
 }
 
-// تبدیل نقطه‌های روزانه به هفتگی (از امروز به عقب، هر ۷ روز)
 function toWeekly(points) {
   const out = [];
   for (let end = points.length - 1; end >= 0; end -= 7) {
@@ -47,7 +40,6 @@ function breakdownOf(rows, total) {
   return rows.map((r) => ({ key: r._id, value: r.n, pct: pct(r.n, total) })).sort((a, b) => b.value - a.value);
 }
 
-/* ---------- آمار یه لینک ---------- */
 exports.linkAnalytics = asyncHandler(async (req, res) => {
   const { range, tz } = req.valid.query;
   const link = await Link.findOne({ _id: req.valid.params.id, owner: req.user._id }).lean();
@@ -55,7 +47,6 @@ exports.linkAnalytics = asyncHandler(async (req, res) => {
   const base = { link: link._id };
   const now = new Date();
 
-  // ۱) کلیدهای بازه
   let unit = 'day';
   let keys;
   let windowStart;
@@ -71,13 +62,11 @@ exports.linkAnalytics = asyncHandler(async (req, res) => {
     windowStart = new Date(link.createdAt.getTime() - 864e5);
   }
 
-  // ۲) سری زمانی با صفر پر کردن
   const counts = await countByKey({ ...base, at: { $gte: windowStart } }, unit, tz, keys);
   let points = keys.map((k) => ({ from: k, value: counts[k] || 0 }));
   let seriesUnit = unit;
   if (range === 'all' && points.length > 21) { points = toWeekly(points); seriesUnit = 'week'; }
 
-  // ۳) تفکیک‌ها (فقط کلیک‌های داخل بازه)
   const inWindow = [
     { $match: { ...base, at: { $gte: windowStart } } },
     { $addFields: { k: T.mongoKey(unit, tz) } },
@@ -90,7 +79,6 @@ exports.linkAnalytics = asyncHandler(async (req, res) => {
   ]);
   const total = facet.total[0] ? facet.total[0].n : 0;
 
-  // ۴) شاخص‌ها (مستقل از بازه‌ی انتخابی): ۷ روز اخیر در برابر ۷ روز قبلش، بازدیدکننده‌ی یکتا و منبع اصلی
   const d14 = T.lastDayKeys(14, tz, now);
   const c14 = await countByKey({ ...base, at: { $gte: new Date(now.getTime() - 16 * 864e5) } }, 'day', tz, d14);
   const last7 = d14.slice(7).map((k) => c14[k] || 0);
@@ -105,7 +93,6 @@ exports.linkAnalytics = asyncHandler(async (req, res) => {
   const allTotal = overall.n[0] ? overall.n[0].n : 0;
   const topSource = breakdownOf(overall.sources, allTotal)[0] || null;
 
-  // ۵) آخرین کلیک‌ها
   const recent = await Click.find(base).sort({ at: -1 }).limit(10).select('at country source refHost device browser -_id').lean();
 
   res.json({
@@ -133,7 +120,6 @@ exports.linkAnalytics = asyncHandler(async (req, res) => {
   });
 });
 
-/* ---------- نمای کلی داشبورد ---------- */
 exports.overview = asyncHandler(async (req, res) => {
   const { days, tz } = req.valid.query;
   const owner = req.user._id;
@@ -142,13 +128,12 @@ exports.overview = asyncHandler(async (req, res) => {
   const ids = activeLinks.map((l) => l._id);
   const base = { owner, link: { $in: ids } };
 
-  const keys = T.lastDayKeys(days * 2, tz, now); // بازه‌ی فعلی + بازه‌ی قبلی (برای درصد تغییر)
+  const keys = T.lastDayKeys(days * 2, tz, now);
   const counts = await countByKey({ ...base, at: { $gte: new Date(now.getTime() - (days * 2 + 1) * 864e5) } }, 'day', tz, keys);
   const points = keys.slice(days).map((k) => ({ from: k, value: counts[k] || 0 }));
   const total = sum(points.map((p) => p.value));
   const prevTotal = sum(keys.slice(0, days).map((k) => counts[k] || 0));
 
-  // ۴ لینک برتر + نمودار کوچک ۷ روزه + روند هفتگی
   const top = activeLinks.slice().sort((a, b) => b.clicks - a.clicks || String(a._id).localeCompare(String(b._id))).slice(0, 4);
   const k14 = T.lastDayKeys(14, tz, now);
   const rows = top.length
@@ -178,7 +163,6 @@ exports.overview = asyncHandler(async (req, res) => {
   });
 });
 
-/* ---------- اعلان‌ها (از روی لینک‌ها محاسبه می‌شن) ---------- */
 const MILESTONES = [100, 250, 500, 1000, 2500, 5000, 10000, 50000, 100000];
 exports.notifications = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).lean();

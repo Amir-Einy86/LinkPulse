@@ -1,4 +1,3 @@
-/* serialize.js — شکل لینکی که به فرانت‌اند می‌دیم */
 const env = require('../config/env');
 
 const shortUrl = (slug) => `${env.baseUrl}/${slug}`;

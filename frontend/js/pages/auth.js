@@ -1,7 +1,3 @@
-/* =========================================================
-   auth.js — صفحه‌های ورود و ثبت‌نام
-   با سرور حرف می‌زنه: /auth/login و /auth/register
-   ========================================================= */
 (function () {
   'use strict';
   const LP = window.LP;
@@ -16,7 +12,6 @@
     return true;
   }
 
-  // خطای هر فیلد کنار همون فیلد؛ بقیه‌ی خطاها به‌صورت پیام
   function showServerError(form, err, fields) {
     const shown = Object.entries(err.details || {}).filter(([k]) => fields[k]);
     shown.forEach(([k, msg]) => LP.ui.setError(fields[k], msg));
@@ -25,12 +20,10 @@
     LP.ui.toast(err.message, 'error', 5000);
   }
 
-  // اگه قبلاً وارد شده، مستقیم بره پنل (به‌جز بعد از خروج)
   if (LP.session.isLoggedIn() && !LP.query('out') && !LP.query('expired')) {
     LP.session.refresh().then(() => LP.go('dashboard.html')).catch(() => {});
   }
 
-  /* ---------------- ورود ---------------- */
   const loginForm = $('#loginForm');
   if (loginForm) {
     LP.ui.liveClear(loginForm);
@@ -58,7 +51,6 @@
     });
   }
 
-  /* ---------------- ثبت‌نام ---------------- */
   const regForm = $('#registerForm');
   if (regForm) {
     LP.ui.liveClear(regForm);
