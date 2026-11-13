@@ -9,3 +9,6 @@ coverage/
 .idea/
 .DS_Store
 Thumbs.db
+
+explain.md
+ANIMATIONS-EXPLAIN.md
